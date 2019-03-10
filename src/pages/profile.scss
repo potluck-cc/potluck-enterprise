@@ -1,0 +1,96 @@
+.profile {
+  background-color: white;
+  grid-column: 2 / -1;
+  grid-row: 1 / -1;
+  overflow-x: scroll;
+
+  display: flex;
+  flex-direction: column;
+
+  &__details {
+    min-height: 40%;
+    padding: 1rem 4rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__info {
+    cursor: pointer;
+  }
+
+  &__other {
+    min-height: 60%;
+    padding: 1rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .hours-card {
+      min-width: 70%;
+      min-height: 70%;
+      background-image: linear-gradient(50deg, #212121, rgba(#212121, 0.9));
+      background-size: cover;
+      border-radius: 25px;
+      border-color: #777;
+      padding: 1rem;
+      text-align: center;
+      color: white;
+      box-shadow: 0px 0px 21px -2px rgba(0, 0, 0, 0.69);
+      z-index: 100;
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: column;
+
+      &:before {
+        border-radius: inherit;
+        background-image: linear-gradient(
+          to right,
+          #212121,
+          rgba(#212121, 0.9)
+        );
+        content: "";
+        display: block;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        width: 100%;
+        z-index: -100;
+        transition: all 0.5s;
+      }
+
+      &:hover {
+        &:before {
+          opacity: 1;
+        }
+      }
+
+      &__hours {
+        margin-bottom: 5px;
+      }
+
+      &__btn {
+        margin-top: 30px;
+      }
+    }
+  }
+}
+
+.hours-field {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+
+  &__text {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}

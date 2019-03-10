@@ -1,0 +1,81 @@
+@import "../scss/variables";
+
+.sidebar {
+  background-image: linear-gradient($dark-green, $light-green);
+  grid-row: 1 / -1;
+  grid-column: span 1;
+  max-height: 100vh;
+  z-index: 999;
+  transition: all 0.5s;
+
+  &:hover {
+    box-shadow: 5px 0 100px -2px #888;
+  }
+
+  &__list {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  &__item {
+    background-color: transparent;
+    height: 80px;
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.7s;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    &:hover {
+      background-color: white;
+
+      & > * {
+        color: $dark-green;
+        opacity: 1;
+      }
+    }
+
+    &--active {
+      background-color: white;
+
+      & > * {
+        color: $dark-green !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  &__icon {
+    height: 50px;
+    width: 50px;
+    font-size: 2rem;
+    color: #98b0f9;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    color: black !important;
+    opacity: 0;
+    text-transform: uppercase;
+  }
+
+  &__link {
+    width: 100%;
+    text-decoration: none;
+  }
+}

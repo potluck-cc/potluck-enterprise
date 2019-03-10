@@ -1,0 +1,49 @@
+@import "../scss/variables";
+
+.home {
+  grid-column: 2 / -1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  overflow-x: scroll;
+
+  &__image {
+    width: 50%;
+    height: 60%;
+  }
+
+  &__cards {
+    list-style-type: none;
+    position: relative;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__card {
+    height: 10rem;
+    width: 10rem;
+    margin-top: 2rem;
+    box-shadow: 0px 0px 21px -2px rgba($light-green, 0.69);
+    border-radius: 25px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  &__icon {
+    font-size: 4rem;
+    color: $light-green;
+  }
+
+  &__text {
+  }
+}

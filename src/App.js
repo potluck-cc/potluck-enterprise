@@ -1,26 +1,51 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "layout.scss";
+
+import Sidebar from "./layout/Sidebar";
+import Menu from "./pages/Menu";
+import Profile from "./pages/Profile";
+import Home from "./pages/Home";
+
+import { BrowserRouter as Router, Route } from "react-router-dom";
+
+const routes = [
+  {
+    path: "/",
+    exact: true,
+    title: "home",
+    icon: "Dialpad",
+    main: () => <Home />
+  },
+  {
+    title: "menu",
+    path: "/menu",
+    icon: "ContextMenu",
+    main: () => <Menu />
+  },
+  {
+    title: "profile",
+    path: "/profile",
+    icon: "ContactCardSettings",
+    main: () => <Profile />
+  }
+];
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Router>
+        <div className="app">
+          <Sidebar routes={routes} />
+          {routes.map((route, index) => (
+            <Route
+              key={index}
+              path={route.path}
+              exact={route.exact}
+              component={route.main}
+            />
+          ))}
+        </div>
+      </Router>
     );
   }
 }

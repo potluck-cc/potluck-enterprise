@@ -1,0 +1,15 @@
+$sidebar-width: 18%;
+$sidebar-bg: #64ad68;
+$main-color: #f4f4fb;
+$color-white: #fff;
+$light-gray: #eee;
+$roboto: "Roboto";
+$openSans: "Open Sans";
+
+.app {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 2fr;
+  grid-template-rows: 1fr 2fr 2fr;
+  min-height: 100vh;
+  max-height: 100vh;
+}
