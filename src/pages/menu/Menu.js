@@ -18,7 +18,7 @@ import {
   DropdownMenuItemType
 } from "office-ui-fabric-react/lib/Dropdown";
 
-import AdditionImage from "../assets/images/addition.png";
+import AdditionImage from "../../assets/images/addition.png";
 
 class Menu extends Component {
   state = { data: [0, 1, 2, 3, 4, 5, 6, 7, 8], showPanel: false };

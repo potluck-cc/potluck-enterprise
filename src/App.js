@@ -2,11 +2,8 @@ import React, { Component } from "react";
 import "layout.scss";
 import "./scss/fonts.scss";
 
-import Topbar from "./layout/Topbar";
-import Sidebar from "./layout/Sidebar";
-import Menu from "./pages/Menu";
-import Profile from "./pages/Profile";
-import Home from "./pages/Home";
+import { Sidebar, Topbar } from "./layout";
+import { Menu, Profile, Home } from "./pages";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
