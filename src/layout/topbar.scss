@@ -1,0 +1,20 @@
+.topbar {
+  background-color: #141f20;
+  grid-row: span 1;
+  grid-column: 1 / -1;
+  //   border-bottom: 2px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__title {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    font-family: LemonMilk;
+    color: white;
+
+    .emphasize {
+      color: #64ad68;
+    }
+  }
+}

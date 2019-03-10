@@ -18,6 +18,8 @@ import {
   DropdownMenuItemType
 } from "office-ui-fabric-react/lib/Dropdown";
 
+import AdditionImage from "../assets/images/addition.png";
+
 class Menu extends Component {
   state = { data: [0, 1, 2, 3, 4, 5, 6, 7, 8], showPanel: false };
 
@@ -27,7 +29,6 @@ class Menu extends Component {
     const previewProps = {
       previewImages: [
         {
-          name: "Revenue stream proposal fiscal year 2016 version02.pptx",
           linkProps: {
             href: "http://bing.com"
           },
@@ -70,6 +71,29 @@ class Menu extends Component {
   render() {
     return (
       <div className="menu">
+        <DocumentCard
+          onClick={this._showPanel}
+          className="item"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column"
+          }}
+        >
+          <DocumentCardPreview
+            {...{
+              previewImages: [
+                {
+                  previewImageSrc: AdditionImage,
+                  width: "100%",
+                  height: 196
+                }
+              ]
+            }}
+          />
+          <DocumentCardTitle title="Add New Item" className="item__title" />
+        </DocumentCard>
         {this.renderProducts()}
         <Panel
           isOpen={this.state.showPanel}

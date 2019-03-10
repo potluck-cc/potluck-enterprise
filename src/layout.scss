@@ -8,8 +8,8 @@ $openSans: "Open Sans";
 
 .app {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr 2fr;
-  grid-template-rows: 1fr 2fr 2fr;
+  grid-template-columns: 10% 2fr 2fr 2fr;
+  grid-template-rows: 10% 2fr 2fr;
   min-height: 100vh;
   max-height: 100vh;
 }
