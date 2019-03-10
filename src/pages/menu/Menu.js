@@ -7,16 +7,8 @@ import {
   DocumentCardTitle
 } from "office-ui-fabric-react/lib/DocumentCard";
 import { ImageFit } from "office-ui-fabric-react/lib/Image";
-import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
-import { TextField } from "office-ui-fabric-react/lib/TextField";
-import {
-  DefaultButton,
-  PrimaryButton
-} from "office-ui-fabric-react/lib/Button";
-import {
-  Dropdown,
-  DropdownMenuItemType
-} from "office-ui-fabric-react/lib/Dropdown";
+
+import EditProductPanel from "./EditProductPanel";
 
 import AdditionImage from "../../assets/images/addition.png";
 
@@ -57,17 +49,6 @@ class Menu extends Component {
     this.setState({ showPanel: true });
   };
 
-  _onRenderFooterContent = () => {
-    return (
-      <div>
-        <PrimaryButton onClick={this._hidePanel} style={{ marginRight: "8px" }}>
-          Save
-        </PrimaryButton>
-        <DefaultButton onClick={this._hidePanel}>Cancel</DefaultButton>
-      </div>
-    );
-  };
-
   render() {
     return (
       <div className="menu">
@@ -95,35 +76,10 @@ class Menu extends Component {
           <DocumentCardTitle title="Add New Item" className="item__title" />
         </DocumentCard>
         {this.renderProducts()}
-        <Panel
-          isOpen={this.state.showPanel}
-          type={PanelType.smallFixedFar}
-          onDismiss={this._hidePanel}
-          headerText="Bubble Gum"
-          closeButtonAriaLabel="Close"
-          onRenderFooterContent={this._onRenderFooterContent}
-        >
-          <TextField label="Name" />
-          <Dropdown
-            placeholder="Select an Option"
-            label="Strain Type"
-            options={[
-              {
-                key: "Header",
-                text: "Strain Type",
-                itemType: DropdownMenuItemType.Header
-              },
-              { key: "A", text: "Sativa" },
-              { key: "B", text: "Indica" },
-              { key: "C", text: "Hybrid" },
-              { key: "D", text: "High CBD" }
-            ]}
-            required={true}
-          />
-          <TextField label="THC%" />
-          <TextField label="CBD%" />
-          <TextField label="Image" iconProps={{ iconName: "CloudUpload" }} />
-        </Panel>
+        <EditProductPanel
+          _hidePanel={this._hidePanel}
+          showPanel={this.state.showPanel}
+        />
       </div>
     );
   }
