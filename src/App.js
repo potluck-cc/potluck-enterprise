@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "layout.scss";
+import "./layout.scss";
 import "./scss/fonts.scss";
 
 import { Sidebar, Topbar } from "./layout";
