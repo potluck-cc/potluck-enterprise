@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import "./sidebar.scss";
 
 import { Icon } from "office-ui-fabric-react/lib/Icon";
@@ -9,24 +9,13 @@ import { Link } from "react-router-dom";
 
 initializeIcons();
 
-class Sidebar extends Component {
-  state = {
-    activeLinkIndex: 0
-  };
-
-  setSidebarItemToActive = index => this.setState({ activeLinkIndex: index });
-
-  renderLists = () =>
-    this.props.routes.map((route, index) => (
-      <Link
-        to={route.path}
-        key={index}
-        className="sidebar__link"
-        onClick={() => this.setSidebarItemToActive(index)}
-      >
+export default ({ routes }) => {
+  const renderLists = () =>
+    routes.map((route, index) => (
+      <Link to={route.path} key={index} className="sidebar__link">
         <li
           className={
-            this.state.activeLinkIndex === index
+            route.path === window.location.pathname
               ? "sidebar__item sidebar__item--active"
               : "sidebar__item"
           }
@@ -39,13 +28,9 @@ class Sidebar extends Component {
       </Link>
     ));
 
-  render() {
-    return (
-      <div className="sidebar">
-        <ul className="sidebar__list">{this.renderLists()}</ul>
-      </div>
-    );
-  }
-}
-
-export default Sidebar;
+  return (
+    <div className="sidebar">
+      <ul className="sidebar__list">{renderLists()}</ul>
+    </div>
+  );
+};
