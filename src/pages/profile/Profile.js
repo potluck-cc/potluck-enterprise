@@ -45,7 +45,7 @@ class Profile extends Component {
           <Persona
             {...personaWithInitials}
             initialsColor={PersonaInitialsColor.teal}
-            coinSize={250}
+            coinSize={150}
             onClick={() => this._showDialog("infoDialog")}
             size={PersonaSize.size72}
             imageAlt="GS"
@@ -62,7 +62,7 @@ class Profile extends Component {
         </div>
         <div className="profile__other">
           <div className="hours-card">
-            <Text variant="mega">Open Hours</Text>
+            <Text variant="xxLarge" className="hours-card__title">Open Hours</Text>
 
             <div className="hours-card__hours">
               <Text variant="xLarge">Mon: </Text>

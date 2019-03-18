@@ -20,6 +20,7 @@ class Sidebar extends Component {
     this.props.routes.map((route, index) => (
       <Link
         to={route.path}
+        key={index}
         className="sidebar__link"
         onClick={() => this.setSidebarItemToActive(index)}
       >

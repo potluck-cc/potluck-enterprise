@@ -1,0 +1,63 @@
+@mixin respond($breakpoint) {
+  @if $breakpoint == phone-sm {
+    @media only screen and (max-width: 360px) {
+      @content;
+    }
+  }
+  @if $breakpoint == phone-sm-land {
+    @media only screen and (max-width: 568px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == phone {
+    @media only screen and (max-width: 414px) {
+      @content;
+    }
+  }
+  @if $breakpoint == phone-land {
+    @media only screen and (max-height: 414px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-port {
+    @media only screen and (max-width: 900px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-sm {
+    @media only screen and (max-width: 768px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-sm-land {
+    @media only screen and (max-width: 1024px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-port-lg {
+    @media only screen and (max-width: 1024px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-land {
+    @media only screen and (max-width: 1200px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-land-lg {
+    @media only screen and (max-width: 1366px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == big-desktop {
+    @media only screen and (min-width: 1800px) {
+      @content;
+    }
+  }
+}
+
+@mixin centerHorVer() {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

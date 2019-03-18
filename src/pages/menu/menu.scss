@@ -4,13 +4,13 @@
   background-color: $grey;
   grid-column: 2 / -1;
   grid-row: 2 / -1;
-  padding: 4rem;
+  padding: 1rem;
   max-height: 100vh;
   overflow-x: scroll;
 
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
 
