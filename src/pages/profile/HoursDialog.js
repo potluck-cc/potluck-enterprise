@@ -19,7 +19,7 @@ export default ({ hidden, closeDialog }) => (
   <Dialog
     hidden={hidden}
     onDismiss={() => closeDialog("hoursDialog")}
-    minWidth="75%"
+    minWidth="95%"
     dialogContentProps={{
       type: DialogType.largeHeader,
       title: "Store Hours",

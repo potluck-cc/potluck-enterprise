@@ -1,3 +1,5 @@
+@import "../../scss/variables";
+
 .topbar {
   background-color: #141f20;
   grid-row: span 1;
@@ -14,7 +16,7 @@
     color: white;
 
     .emphasize {
-      color: #64ad68;
+      color: $green;
     }
   }
 }
