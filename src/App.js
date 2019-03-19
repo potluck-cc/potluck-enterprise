@@ -3,18 +3,11 @@ import "./layout.scss";
 import "./scss/fonts.scss";
 
 import { Sidebar, Topbar } from "./layout";
-import { Menu, Profile, Home } from "./pages";
+import { Menu, Profile } from "./pages";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 const routes = [
-  // {
-  //   path: "/",
-  //   exact: true,
-  //   title: "home",
-  //   icon: "Dialpad",
-  //   main: () => <Home />
-  // },
   {
     title: "menu",
     path: "/menu",
