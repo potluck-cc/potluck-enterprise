@@ -30,11 +30,17 @@ class EditProductPanel extends Component {
   _updateField = (field, val) => this.setState({ [field]: val });
 
   _onRenderFooterContent = () => {
-    const { _hidePanel } = this.props;
+    const { _hidePanel, removeProduct } = this.props;
     return (
       <MenuContext.Consumer>
         {({ activeProduct }) => (
-          <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
             <PrimaryButton
               onClick={() => this._onSave(activeProduct, this._clearState)}
               style={{ marginRight: "8px" }}
@@ -42,6 +48,12 @@ class EditProductPanel extends Component {
               Save
             </PrimaryButton>
             <DefaultButton onClick={_hidePanel}>Cancel</DefaultButton>
+            <PrimaryButton
+              style={{ marginLeft: "8px" }}
+              onClick={() => removeProduct(activeProduct)}
+            >
+              Delete
+            </PrimaryButton>
           </div>
         )}
       </MenuContext.Consumer>
@@ -55,6 +67,8 @@ class EditProductPanel extends Component {
   };
 
   _onSave = (activeProduct, cb) => {
+    const { newProduct } = this.props;
+
     const stateCopy = { ...this.state };
     const changedValues = {};
 
@@ -62,6 +76,12 @@ class EditProductPanel extends Component {
       if (stateCopy[key].length) {
         changedValues[key] = stateCopy[key];
       }
+    }
+
+    if (newProduct) {
+      const { saveNewProduct } = this.props;
+      saveNewProduct(changedValues);
+      return cb();
     }
 
     const changedValueKeys = Object.keys(changedValues);

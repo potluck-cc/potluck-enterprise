@@ -72,6 +72,7 @@ export default ({ updateField, onDrop, image, strainType }) => (
           onChange={onDrop}
           imgExtension={[".jpg", ".png"]}
           maxFileSize={5242880}
+          label="Max file size: 5mb, accepted: jpg | png"
         />
       </Fragment>
     )}

@@ -73,15 +73,14 @@ export default class HoursDialog extends Component {
           <Dialog
             hidden={hidden}
             onDismiss={() => closeDialog("hoursDialog")}
-            minWidth="95%"
             dialogContentProps={{
               type: DialogType.largeHeader,
-              title: "Store Hours",
+              title: "Dispensary Hours",
               subText: "Lorem ipsum dolor sit amet."
             }}
             modalProps={{
               isBlocking: false,
-              containerClassName: "ms-dialogMainOverride"
+              containerClassName: "ms-dialogMainOverride-hours"
             }}
           >
             {this.renderFields(store)}

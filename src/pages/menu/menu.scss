@@ -18,9 +18,18 @@
   margin-right: 2rem;
   margin-left: 2rem;
   margin-bottom: 2rem;
+  max-width: 200px;
+  min-width: 200px;
+  text-align: center;
+
   &__title {
     display: flex;
     justify-content: center;
     align-items: center;
   }
+}
+
+.newProduct {
+  background-color: transparent;
+  border: transparent;
 }
