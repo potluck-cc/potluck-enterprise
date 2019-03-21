@@ -5,47 +5,96 @@ import {
   DefaultButton,
   PrimaryButton
 } from "office-ui-fabric-react/lib/Button";
-import { Image } from "office-ui-fabric-react/lib/Image";
+
+import MenuContext from "./menuContext";
 
 import InputFields from "./InputFields";
 
 class EditProductPanel extends Component {
+  state = {
+    name: "",
+    strainType: "",
+    thc: "",
+    cbd: "",
+    image: ""
+  };
+
+  static defaultState = {
+    name: "",
+    strainType: "",
+    thc: "",
+    cbd: "",
+    image: ""
+  };
+
+  _updateField = (field, val) => this.setState({ [field]: val });
+
   _onRenderFooterContent = () => {
     const { _hidePanel } = this.props;
     return (
-      <div>
-        <PrimaryButton onClick={_hidePanel} style={{ marginRight: "8px" }}>
-          Save
-        </PrimaryButton>
-        <DefaultButton onClick={_hidePanel}>Cancel</DefaultButton>
-      </div>
+      <MenuContext.Consumer>
+        {({ activeProduct }) => (
+          <div>
+            <PrimaryButton
+              onClick={() => this._onSave(activeProduct, this._clearState)}
+              style={{ marginRight: "8px" }}
+            >
+              Save
+            </PrimaryButton>
+            <DefaultButton onClick={_hidePanel}>Cancel</DefaultButton>
+          </div>
+        )}
+      </MenuContext.Consumer>
     );
+  };
+
+  _onDrop = (pictureFiles, pictureDataURLs) => {
+    this.setState({
+      image: pictureDataURLs[0]
+    });
+  };
+
+  _onSave = (activeProduct, cb) => {
+    const stateCopy = { ...this.state };
+    const changedValues = {};
+
+    for (let key in stateCopy) {
+      if (stateCopy[key].length) {
+        changedValues[key] = stateCopy[key];
+      }
+    }
+
+    const changedValueKeys = Object.keys(changedValues);
+
+    changedValueKeys.map(key => (activeProduct[key] = changedValues[key]));
+
+    cb();
+  };
+
+  _clearState = () => {
+    const { _hidePanel } = this.props;
+    this.setState({ ...EditProductPanel.defaultState });
+    _hidePanel();
   };
 
   render() {
     const { showPanel, _hidePanel } = this.props;
+    const { image, strainType } = this.state;
+
     return (
       <Panel
         isOpen={showPanel}
         type={PanelType.smallFixedFar}
         onDismiss={_hidePanel}
-        headerText="Bubble Gum"
         closeButtonAriaLabel="Close"
         onRenderFooterContent={this._onRenderFooterContent}
       >
-        <Image
-          src="https://static1.squarespace.com/static/56ba0d5659827eedd59d1ea1/5970c74d15d5dbbb28bd83ca/59b043c2c027d86344940f76/1551390566256/BG+PNG.png?format=2500w"
-          alt="Selected Product"
-          height={200}
-          styles={{
-            root: {
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center"
-            }
-          }}
+        <InputFields
+          updateField={this._updateField}
+          onDrop={this._onDrop}
+          strainType={strainType}
+          image={image}
         />
-        <InputFields />
       </Panel>
     );
   }
