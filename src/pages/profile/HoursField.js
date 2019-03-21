@@ -96,6 +96,7 @@ export default class HoursField extends Component {
     return (
       <div className="hours-field">
         <Dropdown
+          className="hours-field__dropdown"
           placeholder="Select an Option"
           ariaLabel="Basic dropdown example"
           options={[
@@ -103,13 +104,13 @@ export default class HoursField extends Component {
               key: "Header",
               itemType: DropdownMenuItemType.Header
             },
-            { key: 0, text: "Mon" },
-            { key: 1, text: "Tue" },
-            { key: 2, text: "Wed" },
-            { key: 3, text: "Thu" },
-            { key: 4, text: "Fri" },
-            { key: 5, text: "Sat" },
-            { key: 6, text: "Sun" }
+            { key: 0, text: "Sun" },
+            { key: 1, text: "Mon" },
+            { key: 2, text: "Tues" },
+            { key: 3, text: "Wed" },
+            { key: 4, text: "Thurs" },
+            { key: 5, text: "Fri" },
+            { key: 6, text: "Sat" }
           ]}
           selectedKey={index}
           dropdownWidth={100}

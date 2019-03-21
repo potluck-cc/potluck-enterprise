@@ -92,21 +92,40 @@
   }
 }
 
+.ms-dialogMainOverride-hours {
+  min-width: 50%;
+  @include respond(tab-port) {
+    min-width: 95%;
+  }
+}
+
 .hours-field {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
   border-bottom: 2px solid #eee;
-  padding-bottom: 5px;
-  padding-top: 5px;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
 
   @include respond(phone) {
     flex-direction: column;
     text-align: center;
+    padding: 2rem;
   }
 
   &__text {
     margin-left: 20px;
     margin-right: 20px;
+
+    @include respond(phone) {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  &__dropdown {
+    width: 85px;
+    text-align: center;
   }
 }

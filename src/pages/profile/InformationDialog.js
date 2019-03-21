@@ -51,7 +51,7 @@ export default class InformationDialog extends Component {
         }}
         modalProps={{
           isBlocking: false,
-          containerClassName: "ms-dialogMainOverride"
+          containerClassName: "ms-dialogMainOverride-info"
         }}
       >
         <Image
@@ -87,6 +87,7 @@ export default class InformationDialog extends Component {
           onChange={this._onDrop}
           imgExtension={[".jpg", ".png"]}
           maxFileSize={5242880}
+          label="Max file size: 5mb, accepted: jpg | png"
         />
         <DialogFooter>
           <PrimaryButton onClick={this._onSave} text="Save" />
