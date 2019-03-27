@@ -75,8 +75,7 @@ export default class HoursDialog extends Component {
             onDismiss={() => closeDialog("hoursDialog")}
             dialogContentProps={{
               type: DialogType.largeHeader,
-              title: "Dispensary Hours",
-              subText: "Lorem ipsum dolor sit amet."
+              title: "Dispensary Hours"
             }}
             modalProps={{
               isBlocking: false,

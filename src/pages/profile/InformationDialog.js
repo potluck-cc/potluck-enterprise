@@ -46,8 +46,7 @@ export default class InformationDialog extends Component {
         onDismiss={() => closeDialog("infoDialog")}
         dialogContentProps={{
           type: DialogType.largeHeader,
-          title: "Dispensary Information",
-          subText: "Lorem ipsum dolor sit amet."
+          title: "Dispensary Information"
         }}
         modalProps={{
           isBlocking: false,

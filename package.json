@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.9.2",
     "node-sass": "^4.11.0",
     "office-ui-fabric-react": "^6.153.0",
     "react": "^16.8.3",
