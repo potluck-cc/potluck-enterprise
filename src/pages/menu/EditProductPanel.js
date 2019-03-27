@@ -43,13 +43,16 @@ class EditProductPanel extends Component {
           >
             <PrimaryButton
               onClick={() => this._onSave(activeProduct, this._clearState)}
-              style={{ marginRight: "8px" }}
+              style={{
+                marginRight: "8px",
+                color: "#fff"
+              }}
             >
               Save
             </PrimaryButton>
             <DefaultButton onClick={_hidePanel}>Cancel</DefaultButton>
             <PrimaryButton
-              style={{ marginLeft: "8px" }}
+              style={{ marginLeft: "8px", backgroundColor: "red" }}
               onClick={() => removeProduct(activeProduct)}
             >
               Delete

@@ -33,7 +33,7 @@ class App extends Component {
   render() {
     const { authed } = this.state;
 
-    return !authed ? (
+    return authed ? (
       <Home login={this._login} />
     ) : (
       <Router>

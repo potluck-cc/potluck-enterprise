@@ -12,22 +12,21 @@ import EditProductPanel from "./EditProductPanel";
 
 import MenuContext from "./menuContext";
 
-import AdditionImage from "../../assets/images/addition.png";
+import AdditionImage from "../../assets/images/plus.png";
+import DefaultImage from "../../assets/images/potluck_default.png";
 
 let products = [
   {
     id: 1,
     name: "Pineapple Shock",
     strainType: "Indica",
-    image:
-      "https://static1.squarespace.com/static/56ba0d5659827eedd59d1ea1/5970c74d15d5dbbb28bd83ca/59b043c2c027d86344940f76/1551390566256/BG+PNG.png?format=2500w"
+    image: ""
   },
   {
     id: 2,
     name: "Lemon G",
     strainType: "Hybrid",
-    image:
-      "https://static1.squarespace.com/static/56ba0d5659827eedd59d1ea1/5970c74d15d5dbbb28bd83ca/59b043c2c027d86344940f76/1551390566256/BG+PNG.png?format=2500w"
+    image: ""
   },
   {
     id: 3,
@@ -47,8 +46,7 @@ let products = [
     id: 5,
     name: "Platinum Girl Scout Cookies",
     strainType: "Hybrid",
-    image:
-      "https://static1.squarespace.com/static/56ba0d5659827eedd59d1ea1/5970c74d15d5dbbb28bd83ca/59b043c2c027d86344940f76/1551390566256/BG+PNG.png?format=2500w"
+    image: ""
   },
   {
     id: 6,
@@ -105,7 +103,7 @@ class Menu extends Component {
           {...{
             previewImages: [
               {
-                previewImageSrc: item.image,
+                previewImageSrc: item.image.length ? item.image : DefaultImage,
                 imageFit: ImageFit.contain,
                 width: "100%",
                 height: 196
@@ -167,7 +165,8 @@ class Menu extends Component {
                 previewImages: [
                   {
                     previewImageSrc: AdditionImage,
-                    width: "100%"
+                    width: "50%",
+                    height: 100
                   }
                 ]
               }}

@@ -20,6 +20,8 @@
   margin-bottom: 2rem;
   max-width: 200px;
   min-width: 200px;
+  max-height: 250px;
+  min-height: 250px;
   text-align: center;
 
   &__title {
@@ -32,4 +34,10 @@
 .newProduct {
   background-color: transparent;
   border: transparent;
+
+  & > * {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }

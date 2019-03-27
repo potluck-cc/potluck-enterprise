@@ -10,6 +10,7 @@ import { Image } from "office-ui-fabric-react/lib/Image";
 import MenuContext from "./menuContext";
 
 import ImageUploader from "react-images-upload";
+import DefaultImage from "../../assets/images/potluck_default.png";
 
 export default ({ updateField, onDrop, image, strainType }) => (
   <MenuContext.Consumer>
@@ -21,10 +22,10 @@ export default ({ updateField, onDrop, image, strainType }) => (
               ? image
               : activeProduct.image
               ? activeProduct.image
-              : "https://static1.squarespace.com/static/56ba0d5659827eedd59d1ea1/5970c74d15d5dbbb28bd83ca/59b043c2c027d86344940f76/1551390566256/BG+PNG.png?format=2500w"
+              : DefaultImage
           }
           alt="Selected Product"
-          height={200}
+          height={image.length || activeProduct.image ? 200 : 100}
           styles={{
             root: {
               display: "flex",
