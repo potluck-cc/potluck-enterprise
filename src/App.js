@@ -3,7 +3,7 @@ import "./layout.scss";
 import "./scss/fonts.scss";
 
 import { Sidebar, Topbar } from "./layout";
-import { Menu, Profile, Home } from "./pages";
+import { Menu, Profile, Home, Orders } from "./pages";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
@@ -14,6 +14,12 @@ const routes = [
     icon: "ContextMenu",
     exact: true,
     main: () => <Menu />
+  },
+  {
+    title: "orders",
+    path: "/orders",
+    icon: "Shop",
+    main: () => <Orders />
   },
   {
     title: "profile",
@@ -33,9 +39,10 @@ class App extends Component {
   render() {
     const { authed } = this.state;
 
-    return authed ? (
-      <Home login={this._login} />
-    ) : (
+    // return !authed ? (
+    //   <Home login={this._login} />
+    // ) : (
+    return (
       <Router>
         <div className="app">
           <Topbar />

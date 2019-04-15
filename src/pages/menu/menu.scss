@@ -1,43 +1,33 @@
 @import "../../scss/variables";
+@import "../../scss/mixins";
 
 .menu {
   background-color: $grey;
   grid-column: 2 / -1;
   grid-row: 2 / -1;
-  padding: 1rem;
-  max-height: 100vh;
   overflow-x: scroll;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include centerHorVer();
   flex-wrap: wrap;
 }
 
 .item {
-  margin-right: 2rem;
-  margin-left: 2rem;
-  margin-bottom: 2rem;
-  max-width: 200px;
-  min-width: 200px;
-  max-height: 250px;
-  min-height: 250px;
+  margin: 1rem;
+  max-width: 200px !important;
+  min-width: 200px !important;
+  max-height: 250px !important;
+  min-height: 250px !important;
   text-align: center;
 
   &__title {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include centerHorVer();
   }
 }
 
 .newProduct {
-  background-color: transparent;
-  border: transparent;
+  background-color: transparent !important;
+  border: transparent !important;
 
   & > * {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include centerHorVer();
   }
 }

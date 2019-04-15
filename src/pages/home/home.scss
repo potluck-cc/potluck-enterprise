@@ -32,9 +32,7 @@
     @include respond(tab-port-lg) {
       width: 100%;
       height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      @include centerHorVer();
       flex-direction: column;
     }
 
@@ -67,9 +65,7 @@
     }
 
     .fields {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      @include centerHorVer();
       flex-direction: column;
       width: 100%;
       padding-top: 5rem;

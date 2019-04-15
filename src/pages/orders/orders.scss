@@ -1,0 +1,222 @@
+@import "../../scss/variables";
+@import "../../scss/mixins";
+
+.orders {
+  background-color: rgba(#ccc, 0.2);
+  padding: 1rem;
+  grid-column: 2 / -1;
+  grid-row: 2 / -1;
+  display: flex;
+  justify-content: space-evenly;
+  position: relative;
+
+  @include respond(phone) {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__list {
+    background-color: white;
+    height: 100%;
+    width: 30%;
+    overflow-y: scroll;
+    max-height: 95vh;
+    max-width: 30%;
+    border: 1px solid #ccc;
+    box-shadow: 5px 5px 15px -10px #888;
+
+    @include respond(phone) {
+      width: 100%;
+      max-width: none;
+      min-height: fit-content;
+    }
+
+    .list {
+      &__header {
+        height: 50px;
+        width: 100%;
+        background-color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+      }
+
+      &__title {
+        padding: 0.5rem;
+        font-size: 1rem;
+        color: $dark-green;
+      }
+
+      &__count {
+        padding: 0.5rem;
+        color: $dark-green;
+      }
+
+      .ms-List-cell {
+        min-height: auto;
+      }
+
+      &__cell {
+        background-color: white;
+        border-bottom: 1px solid #ccc;
+        height: 4rem;
+        display: flex;
+        justify-content: space-between;
+        transition: all 0.5s;
+        padding: 0.5rem;
+
+        &:hover {
+          background-color: rgba(#ccc, 0.6);
+        }
+
+        &--active {
+          background-color: rgba(#ccc, 0.6);
+        }
+      }
+
+      &__data {
+        display: flex;
+        flex-direction: column;
+
+        .order-num {
+          font-size: 1.3rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .order-details {
+          .items-num {
+            font-size: 0.9rem;
+            margin-right: 1rem;
+
+            @include respond(phone-land) {
+              margin-right: 0.5rem;
+            }
+          }
+
+          .total {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+
+  &__data {
+    height: 100%;
+    min-height: 95vh;
+    width: 60%;
+
+    display: flex;
+    flex-direction: column;
+
+    @include respond(phone) {
+      width: 100%;
+      margin-top: 2rem;
+    }
+
+    .details {
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 5px 5px 15px -10px #888;
+      margin-bottom: 0.5rem;
+
+      &__header {
+        border-bottom: 1px solid #ccc;
+        height: 5rem;
+        padding-left: 1rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .order-num {
+          font-size: 1.1rem;
+          margin-bottom: 0.5rem;
+          color: black;
+        }
+
+        .order-customer {
+          .name {
+            margin-right: 1rem;
+          }
+        }
+      }
+
+      &__body {
+        height: 12rem;
+        background-color: white;
+        padding-top: 2rem;
+        @include centerHorVer();
+        justify-content: flex-start;
+        flex-direction: column;
+
+        .total {
+          font-size: 2.3rem;
+          margin-bottom: 0.6rem;
+          letter-spacing: 2px;
+        }
+
+        .count {
+          font-size: 1.3rem;
+          margin-bottom: 0.8rem;
+        }
+
+        .time {
+          margin-bottom: 2rem;
+        }
+
+        .actions {
+          display: flex;
+        }
+      }
+    }
+
+    .items {
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 5px 5px 15px -10px #888;
+
+      &__header {
+        border-bottom: 1px solid #ccc;
+        height: 5rem;
+        padding-left: 1rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .title {
+          font-size: 1.5rem;
+          letter-spacing: 1px;
+        }
+      }
+
+      &__body {
+        height: 16rem;
+        background-color: white;
+        padding-top: 2rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        justify-content: flex-start;
+        flex-direction: column;
+
+        @include respond(phone) {
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+
+        .purchase {
+          display: flex;
+          justify-content: space-between;
+
+          &__details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+          }
+        }
+      }
+    }
+  }
+}

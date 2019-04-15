@@ -1,12 +1,14 @@
 @import "../../scss/variables";
+@import "../../scss/mixins";
 
 .sidebar {
   background-image: linear-gradient($dark-green, $light-green);
   grid-row: 2 / -1;
   grid-column: span 1;
-  max-height: 100vh;
-  z-index: 999;
   transition: all 0.5s;
+  position: relative;
+  z-index: 900;
+  min-height: 100vh;
 
   &:hover {
     box-shadow: 5px 0 100px -2px #888;
@@ -14,15 +16,23 @@
 
   &__list {
     height: 100%;
-    width: 100%;
     margin: 0;
     padding: 0;
     list-style-type: none;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100px;
+    z-index: 999;
+
+    @include centerHorVer();
     flex-direction: column;
+
+    @include respond(phone-land) {
+      margin-top: 3.3rem;
+    }
   }
 
   &__item {
@@ -34,10 +44,12 @@
     cursor: pointer;
     transition: all 0.7s;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include centerHorVer();
     flex-direction: column;
+
+    @include respond(phone-land) {
+      height: 60px;
+    }
 
     &:hover {
       background-color: white;

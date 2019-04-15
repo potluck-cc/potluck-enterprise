@@ -84,7 +84,7 @@ export default class HoursDialog extends Component {
           >
             {this.renderFields(store)}
             <DialogFooter>
-              <PrimaryButton onClick={this._onSave} text="Save" />
+              <PrimaryButton onClick={() => this._onSave} text="Save" />
               <DefaultButton
                 onClick={() => closeDialog("hoursDialog")}
                 text="Cancel"
