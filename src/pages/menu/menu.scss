@@ -2,19 +2,24 @@
 @import "../../scss/mixins";
 
 .menu {
+  height: 100vh;
   background-color: $grey;
   grid-column: 2 / -1;
-  grid-row: 2 / -1;
+  grid-row: 1 / -1;
   overflow-x: scroll;
-  @include centerHorVer();
-  flex-wrap: wrap;
+
+  &__list {
+    @include centerHorVer;
+    flex-wrap: wrap;
+    padding: 0.8rem;
+  }
 }
 
 .item {
   margin: 1rem;
   max-width: 200px !important;
   min-width: 200px !important;
-  max-height: 250px !important;
+  // max-height: 250px !important;
   min-height: 250px !important;
   text-align: center;
 
@@ -29,5 +34,112 @@
 
   & > * {
     @include centerHorVer();
+  }
+}
+
+.ms-Panel-content {
+  @include centerHorVer();
+  flex-direction: column;
+
+  & > * {
+    width: 100%;
+  }
+}
+
+.textfield_small {
+  max-width: 35% !important;
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.textfield_medium {
+  max-width: 50% !important;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.pos {
+  display: flex;
+
+  .menu__list {
+    // width: 60%;
+    width: 100%;
+  }
+}
+
+.cart {
+  height: 84%;
+  width: 35%;
+  margin-top: 1.8rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  position: fixed;
+  right: 0;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    height: 50px;
+    border-bottom: 1px solid #ccc;
+    @include centerHorVer();
+  }
+
+  &__items {
+    overflow-y: scroll;
+    margin-bottom: 14.2rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+
+    .details {
+      padding-left: 0.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .total {
+      padding-left: 0.5rem;
+    }
+
+    .actions {
+      padding-left: 0.5rem;
+      .cancel {
+        color: red;
+      }
+      .edit {
+        color: blue;
+      }
+      .icon {
+        padding-right: 0.5rem;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+  &__actions {
+    height: 14rem;
+    width: 100%;
+    border-top: 1px solid #ccc;
+    position: absolute;
+    bottom: 0;
+    @include centerHorVer();
+    flex-direction: column;
+
+    .total {
+      padding-bottom: 0.5rem;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }

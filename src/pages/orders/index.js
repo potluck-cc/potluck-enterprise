@@ -1,76 +1,228 @@
-import React, { Component } from "react";
+import React, { Fragment, useContext, useState, useEffect } from "react";
+import AppContext from "AppContext";
 
-import { GroupedList } from "office-ui-fabric-react/lib/GroupedList";
-import { createListItems } from "office-ui-fabric-react/lib/utilities/exampleData";
+import { useLazyAppSyncQuery, useTime } from "@potluckmarket/ella";
+import "./orders.scss";
+
+import Alert from "react-s-alert";
+import "react-s-alert/dist/s-alert-default.css";
+import "react-s-alert/dist/s-alert-css-effects/jelly.css";
+
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+
+import InfiniteScroll from "react-infinite-scroll-component";
 
 import OrderHeader from "./OrderHeader";
 import OrderCell from "./OrderCell";
 import OrderModule from "./OrderModule";
 import OrderDetails from "./OrderDetails";
 
-import "./orders.scss";
+import client from "client";
+import ListOrders from "api/queries/ListOrders";
+import UpdateOrder from "api/mutations/UpdateOrder";
 
-export default class Orders extends Component {
-  _items = createListItems(20);
+const useForceUpdate = () => useState()[1];
 
-  _groups = [
-    { count: 5, name: "New", startIndex: 0, key: "New" },
-    { count: 5, name: "Accepted", startIndex: 1, key: "Accepted" },
-    { count: 5, name: "Upcoming", startIndex: 2, key: "Upcoming" }
-  ];
+function Orderss() {
+  const appContext = useContext(AppContext);
 
-  _onRenderCell = (nestingDepth, item, itemIndex) => (
-    <OrderCell
-      itemIndex={itemIndex}
-      orderNumber={50}
-      itemCount={5}
-      orderTotal={800}
-      orderTime={"10:00 AM"}
-    />
+  const [status, setStatus] = useState("new");
+  const [refetch, isRefetch] = useState(false);
+  const [orderCards, setOrderCards] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState({});
+  const [date, omit, todayAsAJSDate, { selectDate }] = useTime();
+  const [selectedJSDate, setJSDate] = useState(todayAsAJSDate);
+
+  const forceUpdate = useForceUpdate();
+
+  const [listOrdersRes, fetchOrdersLoading, fetchOrders] = useLazyAppSyncQuery({
+    client,
+    operationType: "query",
+    document: ListOrders,
+    fetchPolicy: "no-cache",
+    handleError: () => renderErrorAlert()
+  });
+
+  const [updateOrderRes, updateOrderLoading, updateOrder] = useLazyAppSyncQuery(
+    {
+      client,
+      operationType: "mutation",
+      document: UpdateOrder,
+      handleError: () => renderErrorAlert()
+    }
   );
 
-  _onRenderHeader = props => (
-    <OrderHeader
-      _onClick={() => props.onToggleCollapse(props.group)}
-      groupName={props.group.name}
-      groupCount={5}
-    />
-  );
-
-  render() {
-    console.log(this._items);
-    return (
-      <div className="orders">
-        <div className="orders__list">
-          <GroupedList
-            className="list"
-            items={this._items}
-            onRenderCell={this._onRenderCell}
-            groupProps={{
-              onRenderHeader: this._onRenderHeader
-            }}
-            groups={this._groups}
-          />
-        </div>
-        <div className="orders__data">
-          <OrderModule
-            orderNumber={50}
-            customerName={"Ashton Morris"}
-            customerPhone={"(973) 220 - 1995"}
-            total={800}
-            itemCount={7}
-            time={"10:00 AM"}
-          />
-
-          <OrderDetails
-            productName={"Lemon G"}
-            productType={"Flower"}
-            productWeight={"Eighth"}
-            total={200}
-            quantity={2}
-          />
-        </div>
-      </div>
-    );
+  function renderErrorAlert(
+    alertMessage = "Something went wrong! Please try again!"
+  ) {
+    Alert.error(alertMessage, {
+      position: "top-right",
+      effect: "jelly",
+      offset: 100,
+      timeout: "none"
+    });
   }
+
+  function fetchMoreOrders() {
+    if (listOrdersRes.listOrders && listOrdersRes.listOrders.nextToken) {
+      const variables = {
+        date,
+        status,
+        nextToken: listOrdersRes.listOrders.nextToken,
+        fetchPolicy: "no-cache"
+      };
+
+      fetchOrders(variables);
+    }
+  }
+
+  function initializeOrderPage() {
+    fetchOrders({ date, status, nextToken: null });
+    appContext.clearNewOrders();
+    appContext.clearOrderCount();
+  }
+
+  function createOrderCards(orders = []) {
+    let newOrderCards = [];
+
+    orders.map(order => {
+      return newOrderCards.push(
+        <OrderCell
+          key={order.id}
+          order={order}
+          selected={order.id === selectedOrder.id}
+          _onClick={() => setSelectedOrder(order)}
+        />
+      );
+    });
+
+    return newOrderCards;
+  }
+
+  function onFetchOrders(update = false) {
+    if (
+      listOrdersRes &&
+      listOrdersRes.listOrders &&
+      listOrdersRes.listOrders.items
+    ) {
+      setOrderCards(currentOrderCards => {
+        if (refetch || update) {
+          return createOrderCards(listOrdersRes.listOrders.items);
+        }
+
+        return [
+          ...currentOrderCards,
+          ...createOrderCards(listOrdersRes.listOrders.items)
+        ];
+      });
+    }
+  }
+
+  function onUpdateOrder() {
+    if (Object.keys(updateOrderRes).length) {
+      setOrderCards(currentOrderCards =>
+        currentOrderCards.filter(
+          orderCard => orderCard.key !== updateOrderRes.updateOrder.id
+        )
+      );
+    }
+
+    setSelectedOrder({});
+  }
+
+  function onSelectDate(date) {
+    selectDate(date);
+    setJSDate(date);
+  }
+
+  function addIncomingOrdersFromSubscription() {
+    if (status === "new" && selectedJSDate === todayAsAJSDate) {
+      const incomingSubscriptionOrders = createOrderCards(appContext.orders);
+
+      if (incomingSubscriptionOrders.length) {
+        setOrderCards(new Set([...incomingSubscriptionOrders, ...orderCards]));
+      }
+    }
+  }
+
+  useEffect(() => {
+    initializeOrderPage();
+  }, []);
+
+  useEffect(() => {
+    fetchOrders({ date, status, nextToken: null });
+    isRefetch(true);
+  }, [status, date]);
+
+  useEffect(() => {
+    onFetchOrders();
+    isRefetch(false);
+  }, [listOrdersRes]);
+
+  useEffect(() => {
+    onUpdateOrder();
+  }, [updateOrderRes]);
+
+  useEffect(() => {
+    addIncomingOrdersFromSubscription();
+  }, [appContext.orders]);
+
+  useEffect(() => {
+    if (Object.keys(onFetchOrders).length) {
+      onFetchOrders(true);
+    }
+  }, [selectedOrder]);
+
+  return (
+    <div className="orders">
+      <div className="orders__list" id="ordersList">
+        <OrderHeader
+          onCheckboxChange={setStatus}
+          onSelectDate={onSelectDate}
+          rawDate={selectedJSDate}
+          selectedCheckbox={status}
+        />
+        <InfiniteScroll
+          hasMore={
+            listOrdersRes && listOrdersRes.listOrders
+              ? listOrdersRes.listOrders.nextToken
+              : false
+          }
+          dataLength={orderCards.length}
+          scrollableTarget="ordersList"
+          scrollThreshold={0.5}
+          next={() => fetchMoreOrders()}
+          loader={
+            <Spinner
+              size={SpinnerSize.large}
+              style={{
+                marginTop: 70,
+                width: "100%",
+                height: 196
+              }}
+            />
+          }
+        >
+          {orderCards}
+        </InfiniteScroll>
+      </div>
+      <div className="orders__data">
+        {Object.keys(selectedOrder).length ? (
+          <Fragment>
+            <OrderModule
+              order={selectedOrder}
+              time={selectedOrder.time}
+              updateOrder={updateOrder}
+              updatingOrder={updateOrderLoading}
+            />
+
+            <OrderDetails products={selectedOrder.products} />
+          </Fragment>
+        ) : null}
+      </div>
+      <Alert stack={{ limit: 1 }} />
+    </div>
+  );
 }
+
+export default Orderss;

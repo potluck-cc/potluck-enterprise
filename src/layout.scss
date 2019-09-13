@@ -10,10 +10,11 @@ body,
 html {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .app {
   display: grid;
   grid-template-columns: 100px 2fr 2fr 2fr;
-  grid-template-rows: 80px 2fr 2fr;
+  grid-template-rows: 50px 2fr 2fr;
 }

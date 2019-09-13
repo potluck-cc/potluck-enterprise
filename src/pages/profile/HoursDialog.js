@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Dialog,
@@ -12,87 +12,107 @@ import {
 
 import HoursField from "./HoursField";
 
-import ProfileContext from "./profileContext";
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
 
-export default class HoursDialog extends Component {
-  state = {
-    fields: [],
-    hours: []
-  };
+function HoursDialog({ hidden, closeDialog, onSave, hours }) {
+  const [currentHours, setHours] = useState(hours ? hours : []);
 
-  renderFields = store => {
-    const fields = [];
-    if (store.hours.length) {
-      store.hours.forEach((timeBlock, index) => {
-        const processedTimeBlock = timeBlock.split(/[\s-]+/);
-        fields.push(
-          <HoursField
-            key={index}
-            index={index}
-            setHours={this.setHours}
-            startTime={processedTimeBlock[0]}
-            endTime={
-              processedTimeBlock[0] === "CLOSED"
-                ? "CLOSED"
-                : processedTimeBlock[processedTimeBlock.length - 1]
-            }
-          />
-        );
-      });
-    } else {
+  useEffect(() => {
+    setHours(hours);
+  }, [hours]);
+
+  function renderFields(hours) {
+    if (hours.length < 7) {
+      let hourFields = [...hours];
+
       for (let i = 0; i < 7; i++) {
-        fields.push(<HoursField key={i} index={i} setHours={this.setHours} />);
+        if (!hourFields[i]) {
+          hourFields.push(
+            <HoursField
+              key={i}
+              index={i}
+              setHours={updateTimeblock}
+              startTime="CLOSED"
+              endTime="CLOSED"
+            />
+          );
+        } else {
+          hourFields[i] = (
+            <HoursField
+              key={i}
+              index={i}
+              setHours={updateTimeblock}
+              startTime={hourFields[i].startTime}
+              endTime={hourFields[i].endTime}
+            />
+          );
+        }
       }
+
+      return hourFields;
     }
 
-    return fields;
-  };
-
-  setHours = (index, value) => {
-    const { hours } = this.state;
-
-    const hoursCopy = hours.slice();
-    hoursCopy[index] = value;
-
-    this.setState({
-      hours: hoursCopy
-    });
-  };
-
-  _onSave = () => {
-    const { closeDialog, onSave } = this.props;
-    onSave(this.state.hours);
-    closeDialog("hoursDialog");
-  };
-
-  render() {
-    const { hidden, closeDialog } = this.props;
-    return (
-      <ProfileContext.Consumer>
-        {({ store }) => (
-          <Dialog
-            hidden={hidden}
-            onDismiss={() => closeDialog("hoursDialog")}
-            dialogContentProps={{
-              type: DialogType.largeHeader,
-              title: "Dispensary Hours"
-            }}
-            modalProps={{
-              isBlocking: false,
-              containerClassName: "ms-dialogMainOverride-hours"
-            }}
-          >
-            {this.renderFields(store)}
-            <DialogFooter>
-              <PrimaryButton onClick={() => this._onSave} text="Save" />
-              <DefaultButton
-                onClick={() => closeDialog("hoursDialog")}
-                text="Cancel"
-              />
-            </DialogFooter>
-          </Dialog>
-        )}
-      </ProfileContext.Consumer>
-    );
+    return hours.map((field, index) => (
+      <HoursField
+        key={index}
+        index={index}
+        setHours={updateTimeblock}
+        startTime={field.startTime}
+        endTime={field.endTime}
+      />
+    ));
   }
+
+  function updateTimeblock(index, value, timeblock) {
+    const newState = [...currentHours];
+
+    if (!newState[index].day) {
+      newState[index] = {
+        ...currentHours[index],
+        [timeblock]: value,
+        day: days[index]
+      };
+    } else {
+      newState[index] = { ...currentHours[index], [timeblock]: value };
+    }
+
+    setHours(newState);
+  }
+
+  return (
+    <Dialog
+      hidden={hidden}
+      onDismiss={() => closeDialog()}
+      dialogContentProps={{
+        type: DialogType.largeHeader,
+        title: "Dispensary Hours"
+      }}
+      modalProps={{
+        isBlocking: false,
+        containerClassName: "ms-dialogMainOverride-hours"
+      }}
+    >
+      {renderFields(currentHours)}
+      <DialogFooter>
+        <PrimaryButton
+          onClick={async () => {
+            await onSave({ hours: JSON.stringify(currentHours) });
+            closeDialog();
+          }}
+          text="Save"
+        />
+        <DefaultButton onClick={() => closeDialog()} text="Cancel" />
+      </DialogFooter>
+    </Dialog>
+  );
 }
+
+export default HoursDialog;

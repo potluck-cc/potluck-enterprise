@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from "react";
-import { Storage } from "aws-amplify";
 import { useForm, useStorage } from "@potluckmarket/ella";
+import { Storage } from "aws-amplify";
 import ImageUploader from "react-images-upload";
 
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
@@ -14,76 +14,50 @@ import {
   DefaultButton
 } from "office-ui-fabric-react/lib/Button";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
+import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { Image, ImageFit } from "office-ui-fabric-react/lib/Image";
 
 import DefaultImage from "assets/images/potluck_default.png";
 
-function InformationDialog({
-  dispensary,
-  closeDialog,
-  hidden,
+function StorefrontDialog({
   renderAlert,
+  hidden,
+  closeDialog,
+  dispensary,
   onSave
 }) {
   const fields = [
     {
-      type: "text",
-      fieldName: "name",
-      value: dispensary.name ? dispensary.name : "",
+      type: "toggle",
+      fieldName: "pickup",
+      value: false,
       dirty: false,
       touched: false,
-      required: true,
+      required: false,
+      error: false
+    },
+    {
+      type: "toggle",
+      fieldName: "delivery",
+      value: false,
+      dirty: false,
+      touched: false,
+      required: false,
       error: false
     },
     {
       type: "text",
-      fieldName: "street",
-      value: dispensary.street ? dispensary.street : "",
+      fieldName: "maxDays",
+      value: "",
       dirty: false,
       touched: false,
-      required: true,
-      error: false
-    },
-    {
-      type: "text",
-      fieldName: "zip",
-      value: dispensary.zip ? dispensary.zip : "",
-      dirty: false,
-      touched: false,
-      required: true,
-      error: false
-    },
-    {
-      type: "text",
-      fieldName: "city",
-      value: dispensary.city ? dispensary.city : "",
-      dirty: false,
-      touched: false,
-      required: true,
-      error: false
-    },
-    {
-      type: "text",
-      fieldName: "phone",
-      value: dispensary.phone ? dispensary.phone : "",
-      dirty: false,
-      touched: false,
-      required: true,
-      error: false
-    },
-    {
-      type: "text",
-      fieldName: "link",
-      value: dispensary.link ? dispensary.link : "",
-      dirty: false,
-      touched: false,
-      required: true,
+      required: false,
       error: false
     },
     {
       type: "hidden",
-      fieldName: "logo",
-      value: dispensary.logo ? dispensary.logo : "",
+      fieldName: "storefrontImage",
+      value: "",
       dirty: false,
       touched: false,
       required: false,
@@ -95,7 +69,6 @@ function InformationDialog({
     form,
     {
       updateField,
-      validate,
       generateFieldValues,
       areRequiredFieldsDirty,
       updateFieldByName
@@ -115,14 +88,20 @@ function InformationDialog({
     e => renderAlert()
   );
 
+  useEffect(() => {
+    form.fields.forEach((field, index) => {
+      if (dispensary[field.fieldName]) {
+        updateField(index, dispensary[field.fieldName]);
+      }
+    });
+  }, [dispensary]);
+
   function handleUpload(imageFiles, imagePreview) {
     uploadImage(imageFiles[0], imagePreview);
-    updateFieldByName("logo", generateImageLink(imageFiles[0].name));
+    updateFieldByName("storefrontImage", generateImageLink(imageFiles[0].name));
   }
 
   async function handleSubmit() {
-    validate();
-
     if (!areRequiredFieldsDirty()) {
       if (imageFiles.type) {
         await saveImage();
@@ -136,37 +115,33 @@ function InformationDialog({
     }
   }
 
-  useEffect(() => {
-    form.fields.forEach((field, index) => {
-      if (dispensary[field.fieldName]) {
-        updateField(index, dispensary[field.fieldName]);
-      }
-    });
-  }, [dispensary]);
-
   return (
     <Dialog
       hidden={hidden}
-      onDismiss={() => closeDialog()}
+      onDismiss={() => closeDialog("storefrontDialog")}
       dialogContentProps={{
         type: DialogType.largeHeader,
-        title: "Dispensary Information"
+        title: "Storefront Settings"
       }}
       modalProps={{
         isBlocking: false,
         containerClassName: "ms-dialogMainOverride-info"
+      }}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }}
     >
       <Image
         src={
           imagePreview
             ? imagePreview
-            : dispensary.logo
-            ? dispensary.logo
+            : dispensary.storefrontImage
+            ? dispensary.storefrontImage
             : DefaultImage
         }
         imageFit={ImageFit.contain}
-        alt={dispensary.name}
         height={200}
         styles={{
           root: {
@@ -176,10 +151,9 @@ function InformationDialog({
           }
         }}
       />
-
       <ImageUploader
         withIcon={false}
-        buttonText="Upload Logo"
+        buttonText="Upload Storefront Image"
         onChange={(imageFiles, imagePreview) =>
           handleUpload(imageFiles, imagePreview)
         }
@@ -187,30 +161,40 @@ function InformationDialog({
         maxFileSize={5242880}
         label="Max file size: 5mb, accepted: jpg | png"
       />
+      <section className="purchase-options">
+        {form.fields.map((field, index) => {
+          if (field.type === "hidden") {
+            return null;
+          }
 
-      {form.fields.map((field, index) => {
-        if (field.type === "hidden") {
-          return (
-            <input
-              type={field.type}
-              value={field.value}
-              onChange={e => updateField(index, e.target.value)}
-            />
-          );
-        }
-        return (
-          <TextField
-            key={index}
-            label={field.fieldName}
-            defaultValue={field.value}
-            type={field.type}
-            onChange={e => updateField(index, e.target.value)}
-            required={field.required}
-            errorMessage={field.error && "This field is required!"}
-          />
-        );
-      })}
-
+          if (field.type === "toggle") {
+            return (
+              <Toggle
+                key={index}
+                defaultChecked={field.value}
+                label={field.fieldName}
+                onText="Enabled"
+                offText="Disabled"
+                onChange={() => updateField(index, !field.value)}
+                disabled
+              />
+            );
+          } else {
+            return (
+              <TextField
+                key={index}
+                label="Maxiumum Advanced Order"
+                className="maxDays"
+                defaultValue={field.value}
+                onChange={e => updateField(index, e.target.value)}
+                suffix="days"
+                required={field.required}
+                errorMessage={field.error && "This field is required!"}
+              />
+            );
+          }
+        })}
+      </section>
       <DialogFooter>
         {loading ? (
           <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
@@ -221,7 +205,6 @@ function InformationDialog({
               text="Save"
               style={{ marginRight: 10 }}
             />
-
             <DefaultButton onClick={() => closeDialog()} text="Cancel" />
           </Fragment>
         )}
@@ -230,4 +213,4 @@ function InformationDialog({
   );
 }
 
-export default InformationDialog;
+export default StorefrontDialog;

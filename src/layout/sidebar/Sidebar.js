@@ -7,9 +7,11 @@ import { Text } from "office-ui-fabric-react/lib/Text";
 
 import { Link } from "react-router-dom";
 
+import Badge from "./Badge";
+
 initializeIcons();
 
-export default ({ routes }) => {
+export default ({ routes, orderCount }) => {
   const renderLists = () =>
     routes.map((route, index) => (
       <Link to={route.path} key={index} className="sidebar__link">
@@ -24,6 +26,7 @@ export default ({ routes }) => {
           <Text className="sidebar__title" variant="medium">
             {route.title}
           </Text>
+          {route.badge && <Badge orderCount={orderCount} />}
         </li>
       </Link>
     ));

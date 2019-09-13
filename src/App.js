@@ -1,11 +1,17 @@
-import React, { Component } from "react";
-import "./layout.scss";
-import "./scss/fonts.scss";
-
-import { Sidebar, Topbar } from "./layout";
-import { Menu, Profile, Home, Orders } from "./pages";
-
+import React, { useState } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
+import { useAppSyncQuery } from "@potluckmarket/ella";
+import moment from "moment";
+
+import "layout.scss";
+import "scss/fonts.scss";
+
+import AppContext from "AppContext";
+import { Sidebar } from "layout";
+import { Menu, Profile, Orders } from "pages";
+
+import client from "client";
+import OrderSubscription from "api/subscriptions/OrderSubscription";
 
 const routes = [
   {
@@ -19,6 +25,7 @@ const routes = [
     title: "orders",
     path: "/orders",
     icon: "Shop",
+    badge: true,
     main: () => <Orders />
   },
   {
@@ -29,24 +36,56 @@ const routes = [
   }
 ];
 
-class App extends Component {
-  state = {
-    authed: false
-  };
+function App() {
+  const [newOrders, setOrders] = useState([]);
+  const [orderCount, setOrderCount] = useState(0);
 
-  _login = () => this.setState({ authed: true });
+  const [orderSubscription] = useAppSyncQuery({
+    client,
+    operationType: "subscribe",
+    document: OrderSubscription,
+    variables: {
+      storeID: "851e40a3-b63b-4f7d-be37-3cf4065c08b5",
+      status: "new",
+      date: moment().format("M/D/YY")
+    },
+    next: ({ data: { onCreateOrder } }) => {
+      if (window.location.pathname === "/orders") {
+        setOrders([onCreateOrder]);
+      } else {
+        setOrderCount(orderCount => orderCount + 1);
+      }
+    }
+  });
 
-  render() {
-    const { authed } = this.state;
+  function clearOrderCount() {
+    setOrderCount(0);
+  }
 
-    // return !authed ? (
-    //   <Home login={this._login} />
-    // ) : (
-    return (
-      <Router>
+  function clearNewOrders() {
+    setOrders([]);
+  }
+
+  function killNewOrdersSubscription() {
+    if (orderSubscription) {
+      orderSubscription.unsubscribe();
+    }
+  }
+
+  return (
+    <Router>
+      <AppContext.Provider
+        value={{
+          orderCount,
+          orders: newOrders,
+          clearOrderCount,
+          clearNewOrders,
+          killNewOrdersSubscription
+        }}
+      >
         <div className="app">
-          <Topbar />
-          <Sidebar routes={routes} />
+          {/* <Topbar /> */}
+          <Sidebar routes={routes} orderCount={orderCount} />
           {routes.map((route, index) => (
             <Route
               key={index}
@@ -56,9 +95,9 @@ class App extends Component {
             />
           ))}
         </div>
-      </Router>
-    );
-  }
+      </AppContext.Provider>
+    </Router>
+  );
 }
 
 export default App;
