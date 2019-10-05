@@ -1,103 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { useAppSyncQuery } from "@potluckmarket/ella";
-import moment from "moment";
+
+import { Home } from "pages";
+import { Signin } from "auth";
+import Enterprise from "Enterprise";
+import AppContext from "AppContext";
+
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+
+import Amplify, { Auth } from "aws-amplify";
+import config from "./aws-exports";
 
 import "layout.scss";
 import "scss/fonts.scss";
 
-import AppContext from "AppContext";
-import { Sidebar } from "layout";
-import { Menu, Profile, Orders } from "pages";
+Amplify.configure(config);
 
-import client from "client";
-import OrderSubscription from "api/subscriptions/OrderSubscription";
+export default function App() {
+  const [initializing, isInitializing] = useState(true);
+  const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  const [activeStore, setActiveStore] = useState(null);
 
-const routes = [
-  {
-    title: "menu",
-    path: "/",
-    icon: "ContextMenu",
-    exact: true,
-    main: () => <Menu />
-  },
-  {
-    title: "orders",
-    path: "/orders",
-    icon: "Shop",
-    badge: true,
-    main: () => <Orders />
-  },
-  {
-    title: "profile",
-    path: "/profile",
-    icon: "ContactCardSettings",
-    main: () => <Profile />
-  }
-];
+  useEffect(() => {
+    initialize();
+  }, []);
 
-function App() {
-  const [newOrders, setOrders] = useState([]);
-  const [orderCount, setOrderCount] = useState(0);
+  async function initialize() {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
 
-  const [orderSubscription] = useAppSyncQuery({
-    client,
-    operationType: "subscribe",
-    document: OrderSubscription,
-    variables: {
-      storeID: "851e40a3-b63b-4f7d-be37-3cf4065c08b5",
-      status: "new",
-      date: moment().format("M/D/YY")
-    },
-    next: ({ data: { onCreateOrder } }) => {
-      if (window.location.pathname === "/orders") {
-        setOrders([onCreateOrder]);
+      if (user) {
+        setAuthenticatedUser(user);
       } else {
-        setOrderCount(orderCount => orderCount + 1);
+        setAuthenticatedUser(null);
       }
-    }
-  });
 
-  function clearOrderCount() {
-    setOrderCount(0);
+      isInitializing(false);
+    } catch (err) {
+      isInitializing(false);
+    }
   }
 
-  function clearNewOrders() {
-    setOrders([]);
+  if (initializing) {
+    return <Spinner size={SpinnerSize.large} style={{ marginTop: 100 }} />;
   }
 
-  function killNewOrdersSubscription() {
-    if (orderSubscription) {
-      orderSubscription.unsubscribe();
-    }
+  if (!authenticatedUser && !initializing) {
+    return <Signin initializeApp={initialize} />;
   }
 
   return (
     <Router>
       <AppContext.Provider
         value={{
-          orderCount,
-          orders: newOrders,
-          clearOrderCount,
-          clearNewOrders,
-          killNewOrdersSubscription
+          initializeApp: initialize,
+          user: authenticatedUser,
+          activeStore,
+          setActiveStore,
+          setAuthenticatedUser
         }}
       >
-        <div className="app">
-          {/* <Topbar /> */}
-          <Sidebar routes={routes} orderCount={orderCount} />
-          {routes.map((route, index) => (
-            <Route
-              key={index}
-              path={route.path}
-              exact={route.exact}
-              component={route.main}
-            />
-          ))}
-        </div>
+        <Fragment>
+          <Route component={Home} path="/" exact />
+          <Route component={Enterprise} path="/:id" />
+        </Fragment>
       </AppContext.Provider>
     </Router>
   );
 }
-
-export default App;

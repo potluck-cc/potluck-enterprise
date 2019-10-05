@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import AppContext from "AppContext";
 import {
   useForm,
   useStorage,
   appsyncFetch,
-  CannabisWeights
+  CannabisWeights,
+  createTimestamp
 } from "@potluckmarket/ella";
 
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
@@ -30,13 +32,18 @@ import Alert from "react-s-alert";
 import "react-s-alert/dist/s-alert-default.css";
 import "react-s-alert/dist/s-alert-css-effects/jelly.css";
 
-function EditProducPanel({
+Storage.configure({ level: "public" });
+
+function EditProductPanel({
   _hidePanel,
   showPanel,
   activeProduct,
   newProduct,
   updateProductState
 }) {
+  const {
+    activeStore: { id, latitude, longitude }
+  } = useContext(AppContext);
   const [isCannabisProduct, setIsCannabisProduct] = useState(false);
   const [loading, isLoading] = useState(false);
 
@@ -148,16 +155,14 @@ function EditProducPanel({
     }
   ];
 
-  const [
-    form,
-    {
-      updateField,
-      generateFieldValues,
-      updateFieldByName,
-      areRequiredFieldsDirty,
-      mutateFieldPropertyValue
-    }
-  ] = useForm(fields);
+  const {
+    state,
+    updateField,
+    generateFieldValues,
+    updateFieldByName,
+    areRequiredFieldsDirty,
+    mutateFieldPropertyValue
+  } = useForm(fields);
 
   const {
     imageFiles,
@@ -168,7 +173,9 @@ function EditProducPanel({
     clearState
   } = useStorage(
     Storage,
-    "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-408727706/public/",
+    process.env.NODE_ENV === "development"
+      ? "https://s3.amazonaws.com/potluckdev-userfiles-mobilehub-657079931/public/"
+      : "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-146449674/public/",
     e => renderErrorAlert()
   );
 
@@ -234,7 +241,7 @@ function EditProducPanel({
     clearState();
 
     if (activeProduct.product) {
-      form.fields.forEach((field, index) => {
+      state.fields.forEach((field, index) => {
         if (activeProduct[field.fieldName]) {
           updateField(index, activeProduct[field.fieldName]);
         } else if (
@@ -247,7 +254,7 @@ function EditProducPanel({
         }
       });
     } else {
-      form.fields.forEach((field, index) => {
+      state.fields.forEach((field, index) => {
         updateField(index, field.defaultValue);
       });
     }
@@ -281,8 +288,12 @@ function EditProducPanel({
           }}
           onClick={async () => {
             isLoading(true);
-            const itemToRemove = await deleteInventoryItem();
-            updateProductState(itemToRemove, "delete");
+            try {
+              const itemToRemove = await deleteInventoryItem();
+              updateProductState(itemToRemove, "delete");
+            } catch {
+              renderErrorAlert();
+            }
             isLoading(false);
             _hidePanel();
           }}
@@ -293,17 +304,17 @@ function EditProducPanel({
     );
   }
 
-  async function findProduct(query) {
+  async function findProduct(slug) {
     const product = await appsyncFetch({
       client,
       document: GetOneProduct,
       operationType: "query",
       fetchPolicy: "network-only",
-      variables: { query }
+      variables: { slug }
     });
 
-    if (product.listProducts && product.listProducts.items.length) {
-      return product.listProducts.items[0].id; // this must change. we need more logic to determine which produt we're going to focus on per operation.
+    if (product && product.getProduct) {
+      return product.getProduct;
     } else {
       return null;
     }
@@ -317,7 +328,7 @@ function EditProducPanel({
       variables: { ...values }
     });
 
-    return newProduct.createProduct ? newProduct.createProduct.id : null;
+    return newProduct.createProduct ? newProduct.createProduct : null;
   }
 
   async function createInventoryItem(values) {
@@ -351,7 +362,10 @@ function EditProducPanel({
       client,
       document: DeleteInventoryItem,
       operationType: "mutation",
-      variables: { id: activeProduct.id }
+      variables: {
+        storeId: activeProduct.storeId,
+        createdAt: activeProduct.createdAt
+      }
     });
 
     return deletedInventoryItem.deleteInventoryItem
@@ -362,9 +376,7 @@ function EditProducPanel({
   function parseFormValues(formValues) {
     let changedValues = { ...formValues };
 
-    changedValues.searchField = formValues.name
-      .replace(/ /g, "_")
-      .toLowerCase();
+    changedValues.slug = formValues.name.replace(/ /g, "_").toLowerCase();
 
     changedValues.isCannabisProduct = isCannabisProduct;
 
@@ -390,37 +402,41 @@ function EditProducPanel({
       isLoading(true);
 
       if (imageFiles.type) {
-        await saveImage();
+        await saveImage("public");
       }
 
       const updatedFormValues = parseFormValues(generateFieldValues());
 
       try {
         if (newProduct) {
-          const foundProductID = await findProduct(
-            updatedFormValues.searchField
-          );
+          const foundProduct = await findProduct(updatedFormValues.slug);
 
-          if (foundProductID) {
-            updatedFormValues.product = foundProductID;
+          if (foundProduct) {
+            updatedFormValues.product = foundProduct.slug;
           } else {
-            const newProductID = await createProduct({
+            const newProduct = await createProduct({
               name: updatedFormValues.name,
-              searchField: updatedFormValues.searchField
+              slug: updatedFormValues.slug
             });
 
-            updatedFormValues.product = newProductID;
+            updatedFormValues.product = newProduct.slug;
           }
           const newInventoryItem = await createInventoryItem({
             ...updatedFormValues,
-            store: "851e40a3-b63b-4f7d-be37-3cf4065c08b5"
+            store: id,
+            storeId: id,
+            createdAt: createTimestamp(),
+            latitude,
+            longitude
           });
 
           updateProductState(newInventoryItem, null);
         } else {
           const updatedInventoryItem = await editInventoryItem({
             ...updatedFormValues,
-            id: activeProduct.id
+            id: activeProduct.id,
+            storeId: id,
+            createdAt: activeProduct.createdAt
           });
 
           updateProductState(updatedInventoryItem, "edit");
@@ -438,7 +454,7 @@ function EditProducPanel({
   return (
     <Panel
       isOpen={showPanel}
-      type={PanelType.smallFixedFar}
+      type={PanelType.medium}
       onDismiss={_hidePanel}
       closeButtonAriaLabel="Close"
       onRenderFooterContent={onRenderFooterContent}
@@ -460,4 +476,4 @@ function EditProducPanel({
   );
 }
 
-export default EditProducPanel;
+export default EditProductPanel;

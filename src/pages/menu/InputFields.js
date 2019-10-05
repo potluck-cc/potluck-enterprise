@@ -117,8 +117,8 @@ export default ({
           { key: "Flower", text: "Flower" },
           { key: "Edible", text: "Edible" },
           { key: "Concentrate", text: "Concentrate" },
-          { key: "Topical", text: "Topical" }
-          // { key: "PreRolls", text: "Pre-rolls" }
+          { key: "Topical", text: "Topical" },
+          { key: "PreRolls", text: "Pre-rolls" }
         ]}
         required
         selectedKey={productType}

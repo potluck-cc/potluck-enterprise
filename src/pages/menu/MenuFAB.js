@@ -25,7 +25,7 @@ export default ({
         <Icon iconName="Add" />
       </Action>
       <Action
-        text="Flower Only"
+        text="Flower"
         onClick={() => setCategory("Flower")}
         style={{
           backgroundColor: activeCategory === "Flower" ? "#209647" : null
@@ -34,7 +34,7 @@ export default ({
         <Icon iconName="cannabis" />
       </Action>
       <Action
-        text="Edibles Only"
+        text="Edibles"
         onClick={() => setCategory("Edible")}
         style={{
           backgroundColor: activeCategory === "Edible" ? "#209647" : null
@@ -43,7 +43,7 @@ export default ({
         <Icon iconName="cookie" />
       </Action>
       <Action
-        text="Concentrates Only"
+        text="Concentrates"
         onClick={() => setCategory("Concentrate")}
         style={{
           backgroundColor: activeCategory === "Concentrate" ? "#209647" : null
@@ -52,7 +52,7 @@ export default ({
         <Icon iconName="vape" />
       </Action>
       <Action
-        text="Topicals Only"
+        text="Topicals"
         onClick={() => setCategory("Topical")}
         style={{
           backgroundColor: activeCategory === "Topical" ? "#209647" : null
@@ -60,8 +60,14 @@ export default ({
       >
         <Icon iconName="lotion" />
       </Action>
-      <Action text="Reset Filter" onClick={() => setCategory(null)}>
-        <Icon iconName="Refresh" />
+      <Action
+        text="Pre-rolls"
+        onClick={() => setCategory("PreRolls")}
+        style={{
+          backgroundColor: activeCategory === "PreRolls" ? "#209647" : null
+        }}
+      >
+        <Icon iconName="joints" />
       </Action>
       {/* <Action
         text="POS Mode"

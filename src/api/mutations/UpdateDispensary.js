@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 
 export default gql`
   mutation UpdateDispensary(
+    $companyId: ID!
     $id: ID!
     $name: String
     $street: String
@@ -19,6 +20,7 @@ export default gql`
   ) {
     updateStore(
       input: {
+        companyId: $companyId
         id: $id
         name: $name
         street: $street
@@ -36,6 +38,7 @@ export default gql`
       }
     ) {
       id
+      companyId
       name
       street
       city

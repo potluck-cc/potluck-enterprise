@@ -4,7 +4,6 @@ export default gql`
   mutation CreateInventoryItem(
     $product: String!
     $productType: ProductType!
-    $store: String!
     $quantity: Float!
     $options: AWSJSON
     $thc: String
@@ -14,12 +13,16 @@ export default gql`
     $strainType: StrainType
     $price: Float
     $isCannabisProduct: Boolean
+    $storeId: ID!
+    $createdAt: AWSTimestamp!
+    $updatedAt: AWSTimestamp
+    $latitude: Float
+    $longitude: Float
   ) {
     createInventoryItem(
       input: {
         product: $product
         productType: $productType
-        store: $store
         quantity: $quantity
         options: $options
         thc: $thc
@@ -29,6 +32,11 @@ export default gql`
         strainType: $strainType
         price: $price
         isCannabisProduct: $isCannabisProduct
+        storeId: $storeId
+        createdAt: $createdAt
+        updatedAt: $updatedAt
+        latitude: $latitude
+        longitude: $longitude
       }
     ) {
       id
@@ -38,6 +46,8 @@ export default gql`
       description
       strainType
       isCannabisProduct
+      storeId
+      createdAt
       product {
         name
       }

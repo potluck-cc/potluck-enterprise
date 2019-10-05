@@ -2,10 +2,9 @@
 @import "../../scss/mixins";
 
 .menu {
-  height: 100vh;
   background-color: $grey;
   grid-column: 2 / -1;
-  grid-row: 1 / -1;
+  grid-row: 2 / -1;
   overflow-x: scroll;
 
   &__list {
@@ -16,7 +15,7 @@
 }
 
 .item {
-  margin: 1rem;
+  margin: 0.3rem;
   max-width: 200px !important;
   min-width: 200px !important;
   // max-height: 250px !important;

@@ -74,10 +74,10 @@ function InformationDialog({
     {
       type: "text",
       fieldName: "link",
-      value: dispensary.link ? dispensary.link : "",
+      value: dispensary.link ? dispensary.link : "http://",
       dirty: false,
       touched: false,
-      required: true,
+      required: false,
       error: false
     },
     {
@@ -91,16 +91,14 @@ function InformationDialog({
     }
   ];
 
-  const [
-    form,
-    {
-      updateField,
-      validate,
-      generateFieldValues,
-      areRequiredFieldsDirty,
-      updateFieldByName
-    }
-  ] = useForm(fields);
+  const {
+    state,
+    updateField,
+    validate,
+    generateFieldValues,
+    areRequiredFieldsDirty,
+    updateFieldByName
+  } = useForm(fields);
 
   const {
     uploadImage,
@@ -111,7 +109,9 @@ function InformationDialog({
     loading
   } = useStorage(
     Storage,
-    "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-408727706/public/",
+    process.env.NODE_ENV === "development"
+      ? "https://s3.amazonaws.com/potluckdev-userfiles-mobilehub-657079931/public/"
+      : "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-146449674/public/",
     e => renderAlert()
   );
 
@@ -125,7 +125,7 @@ function InformationDialog({
 
     if (!areRequiredFieldsDirty()) {
       if (imageFiles.type) {
-        await saveImage();
+        await saveImage("public");
       }
 
       await onSave(generateFieldValues());
@@ -137,7 +137,7 @@ function InformationDialog({
   }
 
   useEffect(() => {
-    form.fields.forEach((field, index) => {
+    state.fields.forEach((field, index) => {
       if (dispensary[field.fieldName]) {
         updateField(index, dispensary[field.fieldName]);
       }
@@ -188,7 +188,7 @@ function InformationDialog({
         label="Max file size: 5mb, accepted: jpg | png"
       />
 
-      {form.fields.map((field, index) => {
+      {state.fields.map((field, index) => {
         if (field.type === "hidden") {
           return (
             <input

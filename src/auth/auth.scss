@@ -1,0 +1,100 @@
+@import "../scss/variables";
+@import "../scss/mixins";
+
+.auth-container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.welcome {
+  height: 100%;
+  width: 35%;
+  background-color: #112021;
+  @include centerHorVer();
+  flex-direction: column;
+
+  @include respond(phone) {
+    display: none;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 2rem;
+    text-transform: uppercase;
+    font-family: LemonMilk;
+    color: white;
+
+    @include respond(tab-port-lg) {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .emphasize {
+      color: $green;
+    }
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 1.3rem;
+    font-family: CircularStd-Book;
+    color: white;
+  }
+}
+
+.form {
+  height: 100%;
+  width: 65%;
+  background-color: f0ead6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  @include respond(phone) {
+    width: 100%;
+  }
+
+  .input-container {
+    height: 100px;
+  }
+
+  .input {
+    width: 300px;
+    background-color: #f4f8f7;
+    padding: 25px;
+  }
+
+  .button {
+    background-color: rgba(#3ab19a, 1);
+    padding: 1.5rem;
+    width: 200px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    transition: background-color ease-in-out 0.3s;
+
+    &:hover {
+      background-color: rgba(#3ab19a, 0.7);
+    }
+  }
+
+  .error {
+    color: red;
+    margin-top: 10px;
+  }
+
+  .link {
+    margin-top: 10px;
+    color: rgba(black, 1);
+    text-decoration: underline;
+    text-decoration-color: #3ab19a;
+
+    &:hover {
+      color: rgba(black, 0.7);
+    }
+  }
+}

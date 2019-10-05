@@ -33,7 +33,20 @@ export default ({ routes, orderCount }) => {
 
   return (
     <div className="sidebar">
-      <ul className="sidebar__list">{renderLists()}</ul>
+      <ul className="sidebar__list">
+        {renderLists()}
+        <Link to={"/"} className="sidebar__link">
+          <li
+            className={ "sidebar__item"
+            }
+          >
+            <Icon iconName={'Home'} className="sidebar__icon" />
+            <Text className="sidebar__title" variant="medium">
+              Home
+            </Text>
+          </li>
+        </Link>
+      </ul>
     </div>
   );
 };

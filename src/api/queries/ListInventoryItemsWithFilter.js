@@ -1,22 +1,27 @@
 import gql from "graphql-tag";
 
 export default gql`
-  query ListInventoryItems($nextToken: String, $productType: String) {
-    listInventories(
+  query ListInventoryItems(
+    $storeId: ID!
+    $nextToken: String
+    $productType: String
+  ) {
+    getStoreInventory(
+      storeId: $storeId
       nextToken: $nextToken
-      filter: {
-        store: { eq: "851e40a3-b63b-4f7d-be37-3cf4065c08b5" }
-        productType: { contains: $productType }
-      }
+      filter: { productType: { eq: $productType } }
     ) {
       items {
         id
         quantity
         productType
+        strainType
         thc
         cbd
         image
         description
+        createdAt
+        storeId
         isCannabisProduct
         price
         options {
@@ -26,7 +31,7 @@ export default gql`
         product {
           id
           name
-          searchField
+          slug
         }
       }
       nextToken

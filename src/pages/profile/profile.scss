@@ -1,52 +1,24 @@
 @import "../../scss/mixins";
 
 .profile {
-  background-color: transparent;
+  background-color: white;
   grid-column: 2 / -1;
-  grid-row: 1 / -1;
-  overflow-x: scroll;
-  display: flex;
-  flex-direction: column;
+  grid-row: 2 / -1;
+  overflow: scroll;
 
-  &__details {
-    min-height: 250px;
-    @include centerHorVer();
-  }
-
-  &__info {
-    cursor: pointer;
-  }
-
-  &__other {
-    min-height: 450px;
-    height: 100%;
+  &__cards {
     padding: 1rem;
-    background-color: #f4f7fc;
+    background-color: white;
     @include centerHorVer();
     flex-wrap: wrap;
+    overflow: scroll;
 
-    .hours-card {
+    .card-dark {
       background-image: linear-gradient(50deg, #212121, rgba(#212121, 0.9));
       background-size: cover;
-      border-radius: 25px;
-      border-color: #777;
-      padding: 1.5rem;
-      margin: 0.5rem;
-      text-align: center;
-      color: white;
-      box-shadow: 0px 0px 21px -2px rgba(0, 0, 0, 0.69);
       z-index: 100;
       position: relative;
-      text-align: center;
-      min-height: 300px;
-      min-width: 350px;
-      @include centerHorVer();
-      flex-direction: column;
-
-      @include respond(phone) {
-        min-width: auto;
-        min-height: auto;
-      }
+      color: white;
 
       &:before {
         border-radius: inherit;
@@ -72,29 +44,24 @@
           opacity: 1;
         }
       }
-
-      &__title {
-        font-size: 3rem;
-      }
-
-      &__hours {
-        margin-bottom: 5px;
-      }
-
-      &__btn {
-        margin-top: 30px;
-      }
     }
 
     .storefront-card {
-      background: white;
-      min-height: 360px;
-      min-width: 350px;
+      min-height: 300px;
+      min-width: 300px;
+      max-width: 300px;
       margin: 0.5rem;
       box-shadow: 0px 0px 21px -2px rgba(0, 0, 0, 0.69);
       border-radius: 25px;
       @include centerHorVer();
+      justify-content: space-evenly;
+      text-align: center;
       flex-direction: column;
+
+      @include respond(phone) {
+        max-width: 85% !important;
+        min-width: 85% !important;
+      }
     }
   }
 }

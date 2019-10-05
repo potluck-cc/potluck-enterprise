@@ -30,7 +30,7 @@ function HoursDialog({ hidden, closeDialog, onSave, hours }) {
   }, [hours]);
 
   function renderFields(hours) {
-    if (hours.length < 7) {
+    if (hours && hours.length < 7) {
       let hourFields = [...hours];
 
       for (let i = 0; i < 7; i++) {
@@ -74,7 +74,7 @@ function HoursDialog({ hidden, closeDialog, onSave, hours }) {
   function updateTimeblock(index, value, timeblock) {
     const newState = [...currentHours];
 
-    if (!newState[index].day) {
+    if (newState[index] && !newState[index].day) {
       newState[index] = {
         ...currentHours[index],
         [timeblock]: value,

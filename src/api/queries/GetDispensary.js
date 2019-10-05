@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export default gql`
-  query GetDispensary($id: ID!) {
-    getStore(id: $id) {
+  query GetDispensary($companyId: ID!, $id: ID!) {
+    getStore(id: $id, companyId: $companyId) {
       id
       hours {
         startTime

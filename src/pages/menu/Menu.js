@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import AppContext from "AppContext";
 
 import {
   useLazyAppSyncQuery,
@@ -60,6 +61,10 @@ const defaultState = {
 };
 
 function Menu() {
+  const {
+    activeStore: { id }
+  } = useContext(AppContext);
+
   const [state, updateState] = useState(defaultState);
 
   const {
@@ -107,17 +112,20 @@ function Menu() {
   useEffect(() => {
     if (
       products &&
-      products.listInventories &&
-      products.listInventories.items
+      products.getStoreInventory &&
+      products.getStoreInventory.items.length
     ) {
       updateProductsInState();
     }
   }, [products]);
 
   useEffect(() => {
-    console.log("products changed");
     renderProductCards();
   }, [state.products]);
+
+  useEffect(() => {
+    setState("products", defaultState.products);
+  }, [category]);
 
   function setState(property, value) {
     updateState(currentState => ({
@@ -128,26 +136,28 @@ function Menu() {
 
   async function initializeMenu() {
     fetchProducts({
+      storeId: id,
       productType: category
     });
   }
 
   function updateProductsInState() {
     if (category) {
-      return setState("products", [...products.listInventories.items]);
+      return setState("products", [...products.getStoreInventory.items]);
     }
 
     setState("products", [
       ...state.products,
-      ...products.listInventories.items
+      ...products.getStoreInventory.items
     ]);
   }
 
   function fetchMoreProducts() {
-    if (products.listInventories && products.listInventories.nextToken) {
+    if (products.getStoreInventory && products.getStoreInventory.nextToken) {
       const variables = {
-        nextToken: products.listInventories.nextToken,
-        productType: category
+        nextToken: products.getStoreInventory.nextToken,
+        productType: category,
+        storeId: id
       };
 
       fetchProducts(variables);
@@ -188,7 +198,8 @@ function Menu() {
 
     if (state.products) {
       state.products.map(product => {
-        subscribeToInventoryItem(product.id);
+        // subscribeToInventoryItem(product.id);
+
         return newProductCards.push(
           <DocumentCard
             onClick={() => onClickProduct(product)}
@@ -215,13 +226,20 @@ function Menu() {
               title={product.product.name}
               className="item__title"
             />
-            <DocumentCardTitle
+
+            {category !== product.productType && (
+              <DocumentCardTitle
+                title={product.productType}
+                className="item__title"
+              />
+            )}
+            {/* <DocumentCardTitle
               title={
                 product.isCannabisProduct
                   ? `${product.quantity} in stock`
                   : `${product.quantity} grams`
               }
-            />
+            /> */}
           </DocumentCard>
         );
       });
@@ -335,8 +353,8 @@ function Menu() {
       ) : (
         <InfiniteScroll
           hasMore={
-            products && products.listInventories
-              ? products.listInventories.nextToken
+            products && products.getStoreInventory
+              ? products.getStoreInventory.nextToken
               : false
           }
           dataLength={productCards.length}
@@ -432,7 +450,11 @@ function Menu() {
           }));
         }}
         setCategory={value => {
-          setState("category", value);
+          if (value === category) {
+            setState("category", null);
+          } else {
+            setState("category", value);
+          }
         }}
         activeCategory={category}
         togglePOSMode={() => {

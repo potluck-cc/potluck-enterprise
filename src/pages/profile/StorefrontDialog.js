@@ -45,15 +45,15 @@ function StorefrontDialog({
       required: false,
       error: false
     },
-    {
-      type: "text",
-      fieldName: "maxDays",
-      value: "",
-      dirty: false,
-      touched: false,
-      required: false,
-      error: false
-    },
+    // {
+    //   type: "text",
+    //   fieldName: "maxDays",
+    //   value: "",
+    //   dirty: false,
+    //   touched: false,
+    //   required: false,
+    //   error: false
+    // },
     {
       type: "hidden",
       fieldName: "storefrontImage",
@@ -65,15 +65,13 @@ function StorefrontDialog({
     }
   ];
 
-  const [
-    form,
-    {
-      updateField,
-      generateFieldValues,
-      areRequiredFieldsDirty,
-      updateFieldByName
-    }
-  ] = useForm(fields);
+  const {
+    state,
+    updateField,
+    generateFieldValues,
+    areRequiredFieldsDirty,
+    updateFieldByName
+  } = useForm(fields);
 
   const {
     uploadImage,
@@ -84,12 +82,14 @@ function StorefrontDialog({
     loading
   } = useStorage(
     Storage,
-    "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-408727706/public/",
+    process.env.NODE_ENV === "development"
+      ? "https://s3.amazonaws.com/potluckdev-userfiles-mobilehub-657079931/public/"
+      : "https://s3.amazonaws.com/potluckenterpriseapp-userfiles-mobilehub-146449674/public/",
     e => renderAlert()
   );
 
   useEffect(() => {
-    form.fields.forEach((field, index) => {
+    state.fields.forEach((field, index) => {
       if (dispensary[field.fieldName]) {
         updateField(index, dispensary[field.fieldName]);
       }
@@ -104,7 +104,7 @@ function StorefrontDialog({
   async function handleSubmit() {
     if (!areRequiredFieldsDirty()) {
       if (imageFiles.type) {
-        await saveImage();
+        await saveImage("public");
       }
 
       await onSave(generateFieldValues());
@@ -162,7 +162,7 @@ function StorefrontDialog({
         label="Max file size: 5mb, accepted: jpg | png"
       />
       <section className="purchase-options">
-        {form.fields.map((field, index) => {
+        {state.fields.map((field, index) => {
           if (field.type === "hidden") {
             return null;
           }

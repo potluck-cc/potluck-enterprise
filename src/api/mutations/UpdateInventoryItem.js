@@ -2,7 +2,6 @@ import gql from "graphql-tag";
 
 export default gql`
   mutation UpdateInventoryItem(
-    $id: ID!
     $thc: String
     $cbd: String
     $options: AWSJSON
@@ -14,10 +13,14 @@ export default gql`
     $strainType: StrainType
     $price: Float
     $isCannabisProduct: Boolean
+    $storeId: ID!
+    $createdAt: AWSTimestamp!
+    $updatedAt: AWSTimestamp
+    $latitude: Float
+    $longitude: Float
   ) {
     updateInventoryItem(
       input: {
-        id: $id
         quantity: $quantity
         thc: $thc
         cbd: $cbd
@@ -30,6 +33,11 @@ export default gql`
         strainType: $strainType
         price: $price
         isCannabisProduct: $isCannabisProduct
+        storeId: $storeId
+        createdAt: $createdAt
+        updatedAt: $updatedAt
+        latitude: $latitude
+        longitude: $longitude
       }
     ) {
       id
@@ -43,6 +51,8 @@ export default gql`
       displayName
       price
       isCannabisProduct
+      createdAt
+      storeId
       options {
         amount
         weight
@@ -50,7 +60,7 @@ export default gql`
       product {
         id
         name
-        searchField
+        slug
       }
     }
   }

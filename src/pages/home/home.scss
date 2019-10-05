@@ -2,111 +2,103 @@
 @import "../../scss/mixins";
 
 .home {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  max-width: 100vw;
   padding: 0;
   margin: 0;
+  background-image: linear-gradient(50deg, #212121, rgba(#212121, 0.85));
+  position: relative;
+  overflow: hidden;
+  color: white;
+  min-height: 100vh;
+  max-width: 100vw;
 
-  &__image {
+  @include respond(tab-port) {
+    flex-direction: column;
+  }
+
+  .cards {
+    @include centerHorVer();
+    flex-wrap: wrap;
     height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    background-image: url("../../assets/images/16544.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  }
 
-    @include respond(tab-port-lg) {
-      display: none;
+  .card {
+    min-height: 300px;
+    min-width: 350px;
+    margin: 0.5rem;
+    box-shadow: 0px 0px 21px -2px rgba(0, 0, 0, 0.69);
+    border-radius: 25px;
+    @include centerHorVer();
+    justify-content: space-evenly;
+    text-align: center;
+    flex-direction: column;
+    background-color: white;
+    color: black;
+
+    @include respond(phone) {
+      max-width: 75%;
+      min-width: 75%;
     }
   }
 
-  &__form {
-    height: 100%;
-    width: 75%;
-    background-color: #112020;
+  .link {
+    text-decoration: none;
+  }
 
-    @include respond(tab-port-lg) {
-      width: 100%;
-      height: 100%;
-      @include centerHorVer();
-      flex-direction: column;
+  .button {
+    background-color: rgba(#3ab19a, 1);
+    padding: 1rem;
+    width: 200px;
+    text-align: center;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    transition: background-color ease-in-out 0.3s;
+    color: white !important;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-decoration-color: transparent;
+
+    &:hover {
+      background-color: rgba(#3ab19a, 0.7);
+      text-decoration: none;
+    }
+  }
+
+  .button-card {
+    background-color: transparent;
+    border-style: dashed;
+    border-color: white;
+    border-radius: 25px;
+    min-height: 300px;
+    min-width: 350px;
+    @include centerHorVer();
+    flex-direction: column;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin: 0.5rem;
+
+    @include respond(phone) {
+      max-width: 75%;
+      min-width: 75%;
     }
 
-    .title {
-      text-align: center;
-      font-size: 2.5rem;
-      text-transform: uppercase;
-      font-family: LemonMilk;
-      color: white;
-
-      @include respond(tab-port-lg) {
-        margin-bottom: 0;
-        padding-bottom: 0;
-      }
-
-      .emphasize {
-        color: $green;
-      }
+    .image {
+      margin-bottom: 15px;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 1.3rem;
-      font-family: CircularStd-Book;
-      color: white;
+    &:hover {
+      opacity: 0.6;
     }
+  }
 
-    .link {
-      color: white;
-    }
+  .form {
+    padding: 1.5rem;
+    width: 100%;
 
-    .fields {
-      @include centerHorVer();
-      flex-direction: column;
-      width: 100%;
-      padding-top: 5rem;
-      padding-bottom: 2rem;
-      color: white;
-
-      @include respond(tab-port-lg) {
-        padding: 0;
-      }
-
-      &__field {
-        width: 65%;
-
-        @include respond(tab-port-lg) {
-          width: 45%;
-        }
-
-        @include respond(phone) {
-          width: 65%;
-        }
-
-        label {
-          color: white;
-        }
-      }
-
-      &__btn {
-        margin-top: 1rem;
-        width: 40%;
-        color: $green;
-
-        @include respond(tab-port-lg) {
-          width: 30%;
-        }
-
-        @include respond(phone-land) {
-          margin-top: 1rem;
-          padding-top: 1rem;
-          padding-bottom: 1rem;
-        }
-      }
+    .input {
+      width: 300px;
+      background-color: #f4f8f7;
+      padding: 25px;
     }
   }
 }

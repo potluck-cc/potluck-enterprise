@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useBoolean, useAppSyncQuery, appsyncFetch } from "@potluckmarket/ella";
+import React, { useState, useContext } from "react";
+import AppContext from "AppContext";
+import { useBoolean, appsyncFetch } from "@potluckmarket/ella";
 import "./profile.scss";
 
-import { Persona, PersonaSize } from "office-ui-fabric-react/lib/Persona";
 import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Text } from "office-ui-fabric-react/lib/Text";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 
 import InformationDialog from "./InformationDialog";
 import HoursDialog from "./HoursDialog";
@@ -16,26 +15,17 @@ import "react-s-alert/dist/s-alert-default.css";
 import "react-s-alert/dist/s-alert-css-effects/jelly.css";
 
 import client from "client";
-import GetDispensary from "api/queries/GetDispensary";
 import UpdateDispensary from "api/mutations/UpdateDispensary";
 
 function Profile() {
+  const {
+    activeStore,
+    user: { username }
+  } = useContext(AppContext);
   const [infoDialog, toggleInfoDialog] = useBoolean(true);
   const [hoursDialog, toggleHoursDialog] = useBoolean(true);
   const [storefrontDialog, toggleStorefrontDialog] = useBoolean(true);
-
-  const [getDispensaryResult, loading] = useAppSyncQuery({
-    client,
-    operationType: "query",
-    document: GetDispensary,
-    variables: { id: "851e40a3-b63b-4f7d-be37-3cf4065c08b5" }
-  });
-
-  const dispensaryObj = getDispensaryResult.getStore
-    ? getDispensaryResult.getStore
-    : getDispensaryResult;
-
-  const [dispensary, updateDispensary] = useState(dispensaryObj);
+  const [dispensary, updateDispensary] = useState(activeStore);
 
   async function onSaveInformation(information) {
     let updatedValues = { ...information };
@@ -51,7 +41,7 @@ function Profile() {
         client,
         operationType: "mutation",
         document: UpdateDispensary,
-        variables: { ...updatedValues, id: dispensary.id }
+        variables: { ...updatedValues, id: dispensary.id, companyId: username }
       });
 
       if (updatedDispensary.updateStore) {
@@ -60,19 +50,6 @@ function Profile() {
     } catch (e) {
       renderErrorAlert();
     }
-  }
-
-  function renderHours(hours) {
-    return hours.map((timeBlock, index) => (
-      <div className="hours-card__hours" key={index}>
-        <Text variant="large">{timeBlock.day}: </Text>
-        <Text variant="large">
-          {timeBlock.startTime === "CLOSED"
-            ? "CLOSED"
-            : `${timeBlock.startTime} - ${timeBlock.endTime}`}
-        </Text>
-      </div>
-    ));
   }
 
   function renderErrorAlert(
@@ -86,71 +63,20 @@ function Profile() {
     });
   }
 
-  useEffect(() => {
-    updateDispensary(
-      getDispensaryResult.getStore
-        ? getDispensaryResult.getStore
-        : getDispensaryResult
-    );
-  }, [getDispensaryResult]);
-
   return (
     <div className="profile">
-      <div className="profile__details">
-        {loading ? (
-          <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
-        ) : (
-          <Persona
-            text={dispensary.name}
-            secondaryText={`${dispensary.street} ${dispensary.city} ${
-              dispensary.zip
-            }`}
-            tertiaryText={dispensary.phone}
-            coinSize={150}
-            onClick={() => toggleInfoDialog(false)}
-            size={PersonaSize.size72}
-            imageUrl={dispensary.logo}
-            className="profile__info"
-            imageShouldFadeIn
+      <div className="profile__cards">
+        <div className="storefront-card card-dark">
+          <Text variant="xxLarge" className="hours-card__title">
+            Hours
+          </Text>
+
+          <PrimaryButton
+            className="hours-card__btn"
+            onClick={() => toggleHoursDialog(false)}
+            text="Update Hours"
           />
-        )}
-
-        <InformationDialog
-          hidden={infoDialog}
-          closeDialog={() => toggleInfoDialog(true)}
-          onSave={onSaveInformation}
-          dispensary={dispensary}
-          renderAlert={renderErrorAlert}
-        />
-      </div>
-
-      <div className="profile__other">
-        {loading ? (
-          <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
-        ) : (
-          <div className="hours-card">
-            <Text variant="xxLarge" className="hours-card__title">
-              Hours
-            </Text>
-
-            {renderHours(dispensary.hours ? dispensary.hours : [])}
-
-            <PrimaryButton
-              className="hours-card__btn"
-              onClick={() => toggleHoursDialog(false)}
-              text="Update Hours"
-            />
-
-            {dispensary.hours && (
-              <HoursDialog
-                hidden={hoursDialog}
-                closeDialog={() => toggleHoursDialog(true)}
-                onSave={onSaveInformation}
-                hours={dispensary.hours}
-              />
-            )}
-          </div>
-        )}
+        </div>
 
         <div className="storefront-card">
           <Text variant="xxLarge" className="hours-card__title">
@@ -160,17 +86,44 @@ function Profile() {
           <PrimaryButton
             className="hours-card__btn"
             onClick={() => toggleStorefrontDialog(false)}
-            text="Update Storefront Settings"
+            text="Update Storefront"
           />
+        </div>
 
-          <StorefrontDialog
-            hidden={storefrontDialog}
-            closeDialog={() => toggleStorefrontDialog(true)}
-            onSave={onSaveInformation}
-            dispensary={dispensary}
+        <div className="storefront-card card-dark">
+          <Text variant="xxLarge" className="hours-card__title">
+            Dispensary Information
+          </Text>
+
+          <PrimaryButton
+            className="hours-card__btn"
+            onClick={() => toggleInfoDialog(false)}
+            text="Update Information"
           />
         </div>
       </div>
+
+      <StorefrontDialog
+        hidden={storefrontDialog}
+        closeDialog={() => toggleStorefrontDialog(true)}
+        onSave={onSaveInformation}
+        dispensary={dispensary}
+      />
+
+      <InformationDialog
+        hidden={infoDialog}
+        closeDialog={() => toggleInfoDialog(true)}
+        onSave={onSaveInformation}
+        dispensary={dispensary}
+        renderAlert={renderErrorAlert}
+      />
+
+      <HoursDialog
+        hidden={hoursDialog}
+        closeDialog={() => toggleHoursDialog(true)}
+        onSave={onSaveInformation}
+        hours={dispensary.hours || []}
+      />
 
       <Alert stack={{ limit: 1 }} />
     </div>
