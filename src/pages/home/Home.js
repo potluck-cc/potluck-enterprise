@@ -21,6 +21,7 @@ import AppContext from "AppContext";
 import { Fab, Action } from "react-tiny-fab";
 import { Icon } from "office-ui-fabric-react/lib/Icon";
 import { Auth } from "aws-amplify";
+import { Auth as AuthComponent } from "auth";
 
 const fields = [
   {
@@ -72,8 +73,12 @@ function textFieldStyles() {
 
 export default function Home() {
   const [panelOpen, isPanelOpen] = useState(false);
+  const [changePasswordPanelOpen, isChangePasswordPanelOpen] = useState(false);
+  const [changeEmailPanelOpen, isChangeEmailPanelOpen] = useState(false);
 
-  const { setActiveStore, user, setAuthenticatedUser } = useContext(AppContext);
+  const { setActiveStore, user, setAuthenticatedUser, demo } = useContext(
+    AppContext
+  );
 
   const {
     attributes: { sub }
@@ -99,9 +104,22 @@ export default function Home() {
     operationType: OperationType.query
   });
 
+  const [stores, setStores] = useState([]);
+
   useEffect(() => {
     initialize();
   }, []);
+
+  useEffect(() => {
+    if (
+      res &&
+      res.getCompanyStores &&
+      res.getCompanyStores.items &&
+      res.getCompanyStores.items.length
+    ) {
+      setStores(res.getCompanyStores.items);
+    }
+  }, [res]);
 
   async function initialize() {
     await fetchStores({ companyId: sub });
@@ -132,6 +150,10 @@ export default function Home() {
           })) || null;
 
         setCreatingStore(false);
+
+        setStores(currStores => [...currStores, createStore]);
+
+        isPanelOpen(false);
 
         return createStore;
       } catch {
@@ -225,11 +247,11 @@ export default function Home() {
   return (
     <div className="home">
       <div className="cards">
-        {!res || !res.getCompanyStores || storesLoading ? (
+        {!stores || storesLoading ? (
           <Spinner size={SpinnerSize.large} style={{ marginTop: 100 }} />
         ) : (
           <Fragment>
-            {res.getCompanyStores.items.map(store => renderStoreCards(store))}
+            {stores.map(store => renderStoreCards(store))}
 
             <div className="button-card" onClick={() => isPanelOpen(true)}>
               <img
@@ -345,6 +367,43 @@ export default function Home() {
         </div>
       </Panel>
 
+      <Panel
+        closeButtonAriaLabel="Close"
+        isOpen={changePasswordPanelOpen}
+        onDismiss={() => isChangePasswordPanelOpen(false)}
+        type={PanelType.medium}
+        headerText="Change Password"
+      >
+        <AuthComponent
+          defaultAuthState={{
+            login: false,
+            forgotPassword: true,
+            confirm: false
+          }}
+          loggedIn={true}
+          onConfirm={() => isChangePasswordPanelOpen(false)}
+        />
+      </Panel>
+
+      <Panel
+        closeButtonAriaLabel="Close"
+        isOpen={changeEmailPanelOpen}
+        onDismiss={() => isChangeEmailPanelOpen(false)}
+        type={PanelType.medium}
+        headerText="Change Email"
+      >
+        <AuthComponent
+          defaultAuthState={{
+            login: false,
+            forgotPassword: false,
+            confirm: false,
+            changeUsername: true
+          }}
+          loggedIn={true}
+          onConfirm={() => isChangeEmailPanelOpen(false)}
+        />
+      </Panel>
+
       <Fab
         mainButtonStyles={{ backgroundColor: "#209647" }}
         actionButtonStyles={{ backgroundColor: "#209647" }}
@@ -360,6 +419,28 @@ export default function Home() {
           }}
         >
           <Icon iconName="SignOut" />
+        </Action>
+
+        <Action
+          text="Change Email"
+          onClick={
+            demo
+              ? () => alert("This is just a demo!")
+              : () => isChangeEmailPanelOpen(true)
+          }
+        >
+          <Icon iconName="EditMail" />
+        </Action>
+
+        <Action
+          text="Change Password"
+          onClick={
+            demo
+              ? () => alert("this is just a demo!")
+              : () => isChangePasswordPanelOpen(true)
+          }
+        >
+          <Icon iconName="Hide" />
         </Action>
       </Fab>
     </div>

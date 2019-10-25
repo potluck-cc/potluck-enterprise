@@ -5,7 +5,8 @@ export default createContext({
   activeStore: null,
   setActiveStore: () => {},
   initializeApp: () => {},
-  setAuthenticatedUser: () => {}
+  setAuthenticatedUser: () => {},
+  demo: false
   // orderCount: 0,
   // clearOrderCount: () => {},
   // orders: [],

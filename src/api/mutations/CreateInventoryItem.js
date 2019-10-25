@@ -4,7 +4,7 @@ export default gql`
   mutation CreateInventoryItem(
     $product: String!
     $productType: ProductType!
-    $quantity: Float!
+    $quantity: Float
     $options: AWSJSON
     $thc: String
     $cbd: String

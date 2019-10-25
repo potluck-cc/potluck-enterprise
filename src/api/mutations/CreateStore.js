@@ -24,6 +24,11 @@ export default gql`
       }
     ) {
       id
+      name
+      state
+      city
+      zip
+      street
     }
   }
 `;

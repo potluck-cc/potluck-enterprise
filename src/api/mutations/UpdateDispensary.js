@@ -17,6 +17,7 @@ export default gql`
     $storefrontImage: AWSURL
     $pickup: Boolean
     $maxDays: Int
+    $public: Boolean
   ) {
     updateStore(
       input: {
@@ -35,6 +36,7 @@ export default gql`
         storefrontImage: $storefrontImage
         pickup: $pickup
         maxDays: $maxDays
+        public: $public
       }
     ) {
       id
@@ -51,6 +53,7 @@ export default gql`
       storefrontImage
       pickup
       maxDays
+      public
       hours {
         startTime
         endTime

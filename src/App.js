@@ -20,6 +20,7 @@ export default function App() {
   const [initializing, isInitializing] = useState(true);
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const [activeStore, setActiveStore] = useState(null);
+  const [demo, setIsDemo] = useState(false);
 
   useEffect(() => {
     initialize();
@@ -31,6 +32,9 @@ export default function App() {
 
       if (user) {
         setAuthenticatedUser(user);
+        if (user.attributes.email === "demo@potluckmarket.com") {
+          setIsDemo(true);
+        }
       } else {
         setAuthenticatedUser(null);
       }
@@ -57,7 +61,8 @@ export default function App() {
           user: authenticatedUser,
           activeStore,
           setActiveStore,
-          setAuthenticatedUser
+          setAuthenticatedUser,
+          demo
         }}
       >
         <Fragment>

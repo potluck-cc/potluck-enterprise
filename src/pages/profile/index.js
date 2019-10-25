@@ -9,6 +9,7 @@ import { Text } from "office-ui-fabric-react/lib/Text";
 import InformationDialog from "./InformationDialog";
 import HoursDialog from "./HoursDialog";
 import StorefrontDialog from "./StorefrontDialog";
+import AccountDialog from "./AccountDialog";
 
 import Alert from "react-s-alert";
 import "react-s-alert/dist/s-alert-default.css";
@@ -26,12 +27,13 @@ function Profile() {
   const [hoursDialog, toggleHoursDialog] = useBoolean(true);
   const [storefrontDialog, toggleStorefrontDialog] = useBoolean(true);
   const [dispensary, updateDispensary] = useState(activeStore);
+  const [settingsDialog, toggleSettingsDialog] = useBoolean(true);
 
   async function onSaveInformation(information) {
     let updatedValues = { ...information };
 
     for (let key in updatedValues) {
-      if (!updatedValues[key]) {
+      if (!updatedValues[key] && key !== "link" && key !== "public") {
         delete updatedValues[key];
       }
     }
@@ -101,6 +103,18 @@ function Profile() {
             text="Update Information"
           />
         </div>
+
+        <div className="storefront-card card-dark">
+          <Text variant="xxLarge" className="hours-card__title">
+            Delete Store
+          </Text>
+
+          <PrimaryButton
+            className="hours-card__btn"
+            onClick={() => toggleSettingsDialog(false)}
+            text="Delete Store"
+          />
+        </div>
       </div>
 
       <StorefrontDialog
@@ -124,6 +138,15 @@ function Profile() {
         onSave={onSaveInformation}
         hours={dispensary.hours || []}
       />
+
+      {dispensary && (
+        <AccountDialog
+          hidden={settingsDialog}
+          closeDialog={() => toggleSettingsDialog(true)}
+          dispensary={dispensary}
+          renderAlert={renderErrorAlert}
+        />
+      )}
 
       <Alert stack={{ limit: 1 }} />
     </div>

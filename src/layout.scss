@@ -1,3 +1,5 @@
+@import "./scss/mixins";
+
 $sidebar-width: 18%;
 $sidebar-bg: #64ad68;
 $main-color: #f4f4fb;
@@ -18,6 +20,16 @@ html {
   grid-template-rows: 80px 2fr 2fr;
   overflow: hidden;
   max-height: 100vh;
+
+  @include respond(phone) {
+    max-height: 100%;
+    overflow: auto;
+  }
+
+  @include respond(phone-land) {
+    max-height: 100%;
+    overflow: auto;
+  }
 }
 
 .spinner-container {

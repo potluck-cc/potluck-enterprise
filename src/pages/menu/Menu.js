@@ -62,7 +62,7 @@ const defaultState = {
 
 function Menu() {
   const {
-    activeStore: { id }
+    activeStore: { id, logo }
   } = useContext(AppContext);
 
   const [state, updateState] = useState(defaultState);
@@ -214,6 +214,8 @@ function Menu() {
                     previewImageSrc:
                       product.image && product.image.length
                         ? product.image
+                        : logo
+                        ? logo
                         : DefaultImage,
                     imageFit: ImageFit.contain,
                     width: "100%",
@@ -222,17 +224,26 @@ function Menu() {
                 ]
               }}
             />
-            <DocumentCardTitle
-              title={product.product.name}
-              className="item__title"
-            />
-
-            {category !== product.productType && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                height: 150
+              }}
+            >
               <DocumentCardTitle
-                title={product.productType}
+                title={product.product.name}
                 className="item__title"
               />
-            )}
+
+              {category !== product.productType && (
+                <DocumentCardTitle
+                  title={product.productType}
+                  className="item__title"
+                />
+              )}
+            </div>
             {/* <DocumentCardTitle
               title={
                 product.isCannabisProduct

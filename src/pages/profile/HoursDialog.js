@@ -22,11 +22,25 @@ const days = [
   "Saturday"
 ];
 
-function HoursDialog({ hidden, closeDialog, onSave, hours }) {
-  const [currentHours, setHours] = useState(hours ? hours : []);
+const defaultHours = [
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[0] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[1] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[2] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[3] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[4] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[5] },
+  { startTime: "CLOSED", endTime: "CLOSED", day: days[6] }
+];
+
+function HoursDialog({ hidden, closeDialog, onSave, hours = [] }) {
+  const [currentHours, setHours] = useState(
+    hours && hours.length ? hours : defaultHours
+  );
 
   useEffect(() => {
-    setHours(hours);
+    if (hours && hours.length) {
+      setHours(hours);
+    }
   }, [hours]);
 
   function renderFields(hours) {
@@ -72,7 +86,7 @@ function HoursDialog({ hidden, closeDialog, onSave, hours }) {
   }
 
   function updateTimeblock(index, value, timeblock) {
-    const newState = [...currentHours];
+    const newState = currentHours.slice();
 
     if (newState[index] && !newState[index].day) {
       newState[index] = {

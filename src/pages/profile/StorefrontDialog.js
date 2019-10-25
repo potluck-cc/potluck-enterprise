@@ -1,4 +1,5 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useContext } from "react";
+import AppContext from "AppContext";
 import { useForm, useStorage } from "@potluckmarket/ella";
 import { Storage } from "aws-amplify";
 import ImageUploader from "react-images-upload";
@@ -26,6 +27,8 @@ function StorefrontDialog({
   dispensary,
   onSave
 }) {
+  const { demo } = useContext(AppContext);
+
   const fields = [
     {
       type: "toggle",
@@ -34,7 +37,8 @@ function StorefrontDialog({
       dirty: false,
       touched: false,
       required: false,
-      error: false
+      error: false,
+      disabled: true
     },
     {
       type: "toggle",
@@ -43,7 +47,18 @@ function StorefrontDialog({
       dirty: false,
       touched: false,
       required: false,
-      error: false
+      error: false,
+      disabled: true
+    },
+    {
+      type: "toggle",
+      fieldName: "public",
+      value: dispensary ? dispensary.public : false,
+      dirty: false,
+      touched: false,
+      required: false,
+      error: false,
+      disabled: demo ? true : false
     },
     // {
     //   type: "text",
@@ -176,7 +191,7 @@ function StorefrontDialog({
                 onText="Enabled"
                 offText="Disabled"
                 onChange={() => updateField(index, !field.value)}
-                disabled
+                disabled={field.disabled}
               />
             );
           } else {

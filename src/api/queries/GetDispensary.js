@@ -23,6 +23,7 @@ export default gql`
       pickup
       delivery
       maxDays
+      public
     }
   }
 `;

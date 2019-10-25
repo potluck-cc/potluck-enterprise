@@ -50,5 +50,5 @@ const awsmobile_DEV = {
 };
 
 export default process.env.NODE_ENV === "development"
-  ? awsmobile_DEV
+  ? awsmobile_PROD
   : awsmobile_PROD;

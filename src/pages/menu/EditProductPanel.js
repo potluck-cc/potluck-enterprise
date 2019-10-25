@@ -85,7 +85,7 @@ function EditProductPanel({
       defaultValue: "",
       dirty: false,
       touched: false,
-      required: true,
+      required: false,
       error: false
     },
     {
@@ -95,19 +95,19 @@ function EditProductPanel({
       defaultValue: "",
       dirty: false,
       touched: false,
-      required: true,
+      required: false,
       error: false
     },
-    {
-      type: "text",
-      fieldName: "quantity",
-      value: "",
-      defaultValue: "",
-      dirty: false,
-      touched: false,
-      required: true,
-      error: false
-    },
+    // {
+    //   type: "text",
+    //   fieldName: "quantity",
+    //   value: "",
+    //   defaultValue: "",
+    //   dirty: false,
+    //   touched: false,
+    //   required: false,
+    //   error: false
+    // },
     {
       type: "text",
       fieldName: "description",
@@ -137,22 +137,22 @@ function EditProductPanel({
       touched: false,
       required: false,
       error: false
-    },
-    {
-      type: "list",
-      fieldName: "options",
-      value: [],
-      defaultValue: [
-        { weight: CannabisWeights.eighth, amount: "" },
-        { weight: CannabisWeights.quarter, amount: "" },
-        { weight: CannabisWeights.half, amount: "" },
-        { weight: CannabisWeights.ounce, amount: "" }
-      ],
-      dirty: false,
-      touched: false,
-      required: true,
-      error: false
     }
+    // {
+    //   type: "list",
+    //   fieldName: "options",
+    //   value: [],
+    //   defaultValue: [
+    //     { weight: CannabisWeights.eighth, amount: "" },
+    //     { weight: CannabisWeights.quarter, amount: "" },
+    //     { weight: CannabisWeights.half, amount: "" },
+    //     { weight: CannabisWeights.ounce, amount: "" }
+    //   ],
+    //   dirty: false,
+    //   touched: false,
+    //   required: false,
+    //   error: false
+    // }
   ];
 
   const {
@@ -185,13 +185,13 @@ function EditProductPanel({
   }, [activeProduct]);
 
   useEffect(() => {
-    if (isCannabisProduct) {
-      mutateFieldPropertyValue("price", "required", true);
-      mutateFieldPropertyValue("options", "required", false);
-    } else {
-      mutateFieldPropertyValue("price", "required", false);
-      mutateFieldPropertyValue("options", "required", true);
-    }
+    // if (isCannabisProduct) {
+    //   mutateFieldPropertyValue("price", "required", true);
+    //   mutateFieldPropertyValue("options", "required", false);
+    // } else {
+    //   mutateFieldPropertyValue("price", "required", false);
+    //   mutateFieldPropertyValue("options", "required", true);
+    // }
   }, [isCannabisProduct]);
 
   // function initializeFieldState() {
@@ -223,23 +223,32 @@ function EditProductPanel({
     alertMessage = "Something went wrong! Please try again!"
   ) {
     Alert.error(alertMessage, {
-      position: "top-right",
+      position: "top-left",
       effect: "jelly",
       offset: 100,
       timeout: "none"
     });
   }
 
+  function doesStringHaveSpecialChars(str) {
+    return /[`~!@#$%^&*()|+\-=?;:'" ,<>]/.test(str);
+  }
+
   function handleUpload(imageFiles, imagePreview) {
     if (imageFiles.length) {
-      uploadImage(imageFiles[0], imagePreview);
-      updateFieldByName("image", generateImageLink(imageFiles[0].name));
+      if (doesStringHaveSpecialChars(imageFiles[0].name)) {
+        renderErrorAlert(
+          "Please ensure that your image's file name does not contain any special characters."
+        );
+      } else {
+        uploadImage(imageFiles[0], imagePreview);
+        updateFieldByName("image", generateImageLink(imageFiles[0].name));
+      }
     }
   }
 
   function populateFields() {
     clearState();
-
     if (activeProduct.product) {
       state.fields.forEach((field, index) => {
         if (activeProduct[field.fieldName]) {
@@ -264,13 +273,7 @@ function EditProductPanel({
     return loading ? (
       <Spinner size={SpinnerSize.large} />
     ) : (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
+      <div className="productPanelFooter">
         <PrimaryButton
           onClick={() => _onSave()}
           style={{
@@ -376,7 +379,9 @@ function EditProductPanel({
   function parseFormValues(formValues) {
     let changedValues = { ...formValues };
 
-    changedValues.slug = formValues.name.replace(/ /g, "_").toLowerCase();
+    changedValues.slug = formValues.name
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'" ,.<>\{\}\[\]\\\/]/gi, "_")
+      .toLowerCase();
 
     changedValues.isCannabisProduct = isCannabisProduct;
 
@@ -391,6 +396,10 @@ function EditProductPanel({
         } else {
           changedValues.options = JSON.stringify(changedValues.options);
         }
+      }
+
+      if (key === "thc" || key === "cbd") {
+        changedValues[key] = null;
       }
     }
 
@@ -421,6 +430,7 @@ function EditProductPanel({
 
             updatedFormValues.product = newProduct.slug;
           }
+
           const newInventoryItem = await createInventoryItem({
             ...updatedFormValues,
             store: id,
@@ -432,14 +442,38 @@ function EditProductPanel({
 
           updateProductState(newInventoryItem, null);
         } else {
-          const updatedInventoryItem = await editInventoryItem({
-            ...updatedFormValues,
-            id: activeProduct.id,
-            storeId: id,
-            createdAt: activeProduct.createdAt
-          });
+          if (updatedFormValues.slug !== activeProduct.slug) {
+            const foundProduct = await findProduct(updatedFormValues.slug);
 
-          updateProductState(updatedInventoryItem, "edit");
+            if (foundProduct) {
+              updatedFormValues.product = foundProduct.slug;
+            } else {
+              const newProduct = await createProduct({
+                name: updatedFormValues.name,
+                slug: updatedFormValues.slug
+              });
+
+              updatedFormValues.product = newProduct.slug;
+            }
+
+            const updatedInventoryItem = await editInventoryItem({
+              ...updatedFormValues,
+              id: activeProduct.id,
+              storeId: id,
+              createdAt: activeProduct.createdAt
+            });
+
+            updateProductState(updatedInventoryItem, "edit");
+          } else {
+            const updatedInventoryItem = await editInventoryItem({
+              ...updatedFormValues,
+              id: activeProduct.id,
+              storeId: id,
+              createdAt: activeProduct.createdAt
+            });
+
+            updateProductState(updatedInventoryItem, "edit");
+          }
         }
       } catch {
         renderErrorAlert();

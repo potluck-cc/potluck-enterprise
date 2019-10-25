@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from "react";
 import { Storage } from "aws-amplify";
-import { useForm, useStorage } from "@potluckmarket/ella";
+import { useForm, useStorage, useAuth } from "@potluckmarket/ella";
 import ImageUploader from "react-images-upload";
 
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
@@ -74,7 +74,7 @@ function InformationDialog({
     {
       type: "text",
       fieldName: "link",
-      value: dispensary.link ? dispensary.link : "http://",
+      value: dispensary.link ? dispensary.link : null,
       dirty: false,
       touched: false,
       required: false,
@@ -120,19 +120,78 @@ function InformationDialog({
     updateFieldByName("logo", generateImageLink(imageFiles[0].name));
   }
 
+  function plusify(str) {
+    return str.replace(/ /g, "+");
+  }
+
+  async function geoLocate({ street, city, state = "NJ" }) {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${plusify(
+      street
+    )},${plusify(city)},${plusify(
+      state
+    )}&key=AIzaSyB30Evgnn_D16ZtL5qCRFzUJrj5sGY2dUo`;
+
+    const res = await fetch(url);
+    const { results } = (await res.json()) || null;
+
+    if (results) {
+      const {
+        geometry: { location }
+      } = results[0];
+
+      return location || null;
+    } else {
+      return null;
+    }
+  }
+
+  function createValidLink(link) {
+    if (!link.includes("http://")) {
+      return `http://${link}`;
+    } else {
+      return link;
+    }
+  }
+
   async function handleSubmit() {
     validate();
 
-    if (!areRequiredFieldsDirty()) {
-      if (imageFiles.type) {
-        await saveImage("public");
+    try {
+      if (!areRequiredFieldsDirty()) {
+        if (imageFiles.type) {
+          await saveImage("public");
+        }
+
+        const { street, city, zip, state, link } = generateFieldValues();
+
+        if (
+          street !== dispensary.street ||
+          city !== dispensary.city ||
+          zip !== dispensary.zip ||
+          state !== dispensary.state
+        ) {
+          const { lat, lng } =
+            (await geoLocate({ street, city, state })) || null;
+
+          await onSave({
+            ...generateFieldValues(),
+            latitude: lat,
+            longitude: lng,
+            link: link && link.length ? createValidLink(link) : null
+          });
+        } else {
+          await onSave({
+            ...generateFieldValues(),
+            link: link && link.length ? createValidLink(link) : null
+          });
+        }
+
+        closeDialog();
+      } else {
+        return null;
       }
-
-      await onSave(generateFieldValues());
-
-      closeDialog();
-    } else {
-      return null;
+    } catch {
+      renderAlert();
     }
   }
 

@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useContext } from "react";
 import ImageUploader from "react-images-upload";
+import AppContext from 'AppContext';
 
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import {
@@ -25,12 +26,16 @@ export default ({
     thc,
     cbd,
     image,
-    quantity,
+    // quantity,
     options,
     description,
     price
   }
 }) => {
+    const {
+      activeStore: { logo }
+    } = useContext(AppContext);
+  
   useEffect(() => {
     if (productType) {
       if (productType === "Flower" || productType === "PreRolls") {
@@ -56,7 +61,7 @@ export default ({
   return (
     <Fragment>
       <Image
-        src={imagePreview ? imagePreview : image ? image : DefaultImage}
+        src={imagePreview ? imagePreview : image ? image : logo ? logo : DefaultImage}
         alt="Selected Product"
         height={
           (image && image.length) || (imagePreview && imagePreview.length)
@@ -131,8 +136,6 @@ export default ({
         onChange={e => updateField("thc", e.target.value)}
         suffix="%"
         className="textfield_small"
-        required
-        errorMessage={error && errorMessage}
       />
       <TextField
         label="CBD%"
@@ -140,8 +143,6 @@ export default ({
         onChange={e => updateField("cbd", e.target.value)}
         suffix="%"
         className="textfield_small"
-        required
-        errorMessage={error && errorMessage}
       />
       <TextField
         label="Description"
@@ -151,14 +152,13 @@ export default ({
         onChange={e => updateField("description", e.target.value)}
       />
 
-      {isCannabisProduct ? (
+      {/* {isCannabisProduct ? (
         <TextField
           label="Price"
           onChange={e => updateField("price", e.target.value)}
           prefix="$"
           defaultValue={price}
           className="textfield_small"
-          required
           errorMessage={error && errorMessage}
         />
       ) : (
@@ -170,7 +170,6 @@ export default ({
             value={options[0] && options[0].amount}
             className="textfield_small"
             errorMessage={error && errorMessage}
-            required
           />
           <TextField
             label="Price Per Quarter"
@@ -179,7 +178,6 @@ export default ({
             defaultValue={options[1] && options[1].amount}
             className="textfield_small"
             errorMessage={error && errorMessage}
-            required
           />
           <TextField
             label="Price Per Half"
@@ -188,7 +186,6 @@ export default ({
             defaultValue={options[2] && options[2].amount}
             className="textfield_small"
             errorMessage={error && errorMessage}
-            required
           />
           <TextField
             label="Price Per Ounce"
@@ -197,20 +194,18 @@ export default ({
             defaultValue={options[3] && options[3].amount}
             className="textfield_small"
             errorMessage={error && errorMessage}
-            required
           />
         </Fragment>
-      )}
+      )} */}
 
-      <TextField
+      {/* <TextField
         label="In Stock"
         onChange={e => updateField("quantity", e.target.value)}
         suffix={productType === "Flower" ? "grams" : "items"}
         defaultValue={quantity}
         className="textfield_medium"
-        required
         errorMessage={error && errorMessage}
-      />
+      /> */}
     </Fragment>
   );
 };
