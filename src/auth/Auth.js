@@ -141,7 +141,6 @@ export default function({
   }
 
   async function verifyAttribute() {
-    console.log("verifying...");
     handleVerifyChangeAttribute(
       {
         attribute: "email",

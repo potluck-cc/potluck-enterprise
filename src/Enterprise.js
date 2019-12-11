@@ -1,16 +1,20 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState, memo } from "react";
 import { Route } from "react-router-dom";
-import { Menu, Profile } from "pages";
+import { Menu, Profile, Orders } from "pages";
 import { Sidebar, Topbar } from "layout";
-import { useLazyAppSyncQuery, OperationType } from "@potluckmarket/ella";
+import {
+  useLazyAppSyncQuery,
+  OperationType,
+  useAppSyncQuery
+} from "@potluckmarket/ella";
 import AppContext from "AppContext";
+import OrderContext from "OrderContext";
 import client from "client";
 import GetDispensary from "api/queries/GetDispensary";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-// import OrderSubscription from "api/subscriptions/OrderSubscription";
-// import moment from "moment";
+import OrderSubscription from "api/subscriptions/OrderSubscription";
 
-export default function Enterprise({
+export default memo(function Enterprise({
   match: {
     params: { id }
   }
@@ -20,6 +24,9 @@ export default function Enterprise({
     setActiveStore,
     user: { username }
   } = useContext(AppContext);
+
+  const [orders, setOrders] = useState([]);
+  const [orderCount, setOrderCount] = useState(0);
 
   const [res, loading, fetchDispensary] = useLazyAppSyncQuery({
     client,
@@ -36,13 +43,13 @@ export default function Enterprise({
       exact: true,
       main: () => <Menu />
     },
-    // {
-    //   title: "orders",
-    //   path: `/${id}/orders`,
-    //   icon: "Shop",
-    //   badge: true,
-    //   main: () => <Orders />
-    // },
+    {
+      title: "orders",
+      path: `/${id}/orders`,
+      icon: "Shop",
+      badge: true,
+      main: () => <Orders />
+    },
     {
       title: "settings",
       path: `/${id}/settings`,
@@ -65,35 +72,29 @@ export default function Enterprise({
     }
   }, [res]);
 
-  // const [newOrders, setOrders] = useState([]);
+  const [orderSubscription] = useAppSyncQuery({
+    client,
+    operationType: "subscribe",
+    document: OrderSubscription,
+    variables: {
+      storeId: id
+    },
+    next: ({ data: { onCreateOrder } }) => {
+      if (window.location.pathname.includes("/orders")) {
+        setOrders([onCreateOrder]);
+      } else {
+        setOrderCount(orderCount => orderCount + 1);
+      }
+    }
+  });
 
-  // const [orderCount, setOrderCount] = useState(0);
+  function clearOrderCount() {
+    setOrderCount(0);
+  }
 
-  // const [orderSubscription] = useAppSyncQuery({
-  //   client,
-  //   operationType: "subscribe",
-  //   document: OrderSubscription,
-  //   variables: {
-  //     storeID: storeId,
-  //     status: "new",
-  //     date: moment().format("M/D/YY")
-  //   },
-  //   next: ({ data: { onCreateOrder } }) => {
-  //     if (window.location.pathname === "/orders") {
-  //       setOrders([onCreateOrder]);
-  //     } else {
-  //       setOrderCount(orderCount => orderCount + 1);
-  //     }
-  //   }
-  // });
-
-  // function clearOrderCount() {
-  //   setOrderCount(0);
-  // }
-
-  // function clearNewOrders() {
-  //   setOrders([]);
-  // }
+  function clearOrders() {
+    setOrders([]);
+  }
 
   // function killNewOrdersSubscription() {
   //   if (orderSubscription) {
@@ -110,18 +111,23 @@ export default function Enterprise({
   }
 
   return (
-    <div className="app">
-      <Topbar />
-      {/* <Sidebar routes={routes} orderCount={orderCount} /> */}
-      <Sidebar routes={routes} />
-      {routes.map((route, index) => (
-        <Route
-          key={index}
-          path={route.path}
-          exact={route.exact}
-          component={route.main}
-        />
-      ))}
-    </div>
+    <OrderContext.Provider
+      value={{
+        orderCount,
+        orders,
+        clearOrderCount,
+        clearOrders,
+        setOrders,
+        setOrderCount
+      }}
+    >
+      <div className="app">
+        <Topbar />
+        <Sidebar routes={routes} orderCount={orderCount} />
+        <Route path={`/${id}/menu`} exact component={Menu} />
+        <Route path={`/${id}/orders`} exact component={Orders} />
+        <Route path={`/${id}/settings`} exact component={Profile} />
+      </div>
+    </OrderContext.Provider>
   );
-}
+});

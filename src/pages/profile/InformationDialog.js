@@ -15,12 +15,12 @@ import {
 } from "office-ui-fabric-react/lib/Button";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Image, ImageFit } from "office-ui-fabric-react/lib/Image";
-
+import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import DefaultImage from "assets/images/potluck_default.png";
 
 function InformationDialog({
   dispensary,
-  closeDialog,
+  closePanel,
   hidden,
   renderAlert,
   onSave
@@ -186,7 +186,7 @@ function InformationDialog({
           });
         }
 
-        closeDialog();
+        closePanel();
       } else {
         return null;
       }
@@ -204,17 +204,29 @@ function InformationDialog({
   }, [dispensary]);
 
   return (
-    <Dialog
-      hidden={hidden}
-      onDismiss={() => closeDialog()}
-      dialogContentProps={{
-        type: DialogType.largeHeader,
-        title: "Dispensary Information"
-      }}
-      modalProps={{
-        isBlocking: false,
-        containerClassName: "ms-dialogMainOverride-info"
-      }}
+    <Panel
+      closeButtonAriaLabel="Close"
+      isOpen={hidden}
+      onDismiss={() => closePanel()}
+      type={PanelType.medium}
+      isLightDismiss
+      onRenderFooterContent={() => (
+        <DialogFooter>
+          {loading ? (
+            <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
+          ) : (
+            <Fragment>
+              <PrimaryButton
+                onClick={() => handleSubmit()}
+                text="Save"
+                style={{ marginRight: 10 }}
+              />
+
+              <DefaultButton onClick={() => closePanel()} text="Cancel" />
+            </Fragment>
+          )}
+        </DialogFooter>
+      )}
     >
       <Image
         src={
@@ -269,23 +281,7 @@ function InformationDialog({
           />
         );
       })}
-
-      <DialogFooter>
-        {loading ? (
-          <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
-        ) : (
-          <Fragment>
-            <PrimaryButton
-              onClick={() => handleSubmit()}
-              text="Save"
-              style={{ marginRight: 10 }}
-            />
-
-            <DefaultButton onClick={() => closeDialog()} text="Cancel" />
-          </Fragment>
-        )}
-      </DialogFooter>
-    </Dialog>
+    </Panel>
   );
 }
 

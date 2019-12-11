@@ -5,11 +5,7 @@ import { Storage } from "aws-amplify";
 import ImageUploader from "react-images-upload";
 
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import {
-  Dialog,
-  DialogType,
-  DialogFooter
-} from "office-ui-fabric-react/lib/Dialog";
+import { DialogFooter } from "office-ui-fabric-react/lib/Dialog";
 import {
   PrimaryButton,
   DefaultButton
@@ -17,13 +13,13 @@ import {
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { Toggle } from "office-ui-fabric-react/lib/Toggle";
 import { Image, ImageFit } from "office-ui-fabric-react/lib/Image";
-
+import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import DefaultImage from "assets/images/potluck_default.png";
 
 function StorefrontDialog({
   renderAlert,
   hidden,
-  closeDialog,
+  closePanel,
   dispensary,
   onSave
 }) {
@@ -124,29 +120,35 @@ function StorefrontDialog({
 
       await onSave(generateFieldValues());
 
-      closeDialog();
+      closePanel();
     } else {
       return null;
     }
   }
 
   return (
-    <Dialog
-      hidden={hidden}
-      onDismiss={() => closeDialog("storefrontDialog")}
-      dialogContentProps={{
-        type: DialogType.largeHeader,
-        title: "Storefront Settings"
-      }}
-      modalProps={{
-        isBlocking: false,
-        containerClassName: "ms-dialogMainOverride-info"
-      }}
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}
+    <Panel
+      closeButtonAriaLabel="Close"
+      isOpen={hidden}
+      onDismiss={() => closePanel()}
+      type={PanelType.medium}
+      isLightDismiss
+      onRenderFooterContent={() => (
+        <DialogFooter>
+          {loading ? (
+            <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
+          ) : (
+            <Fragment>
+              <PrimaryButton
+                onClick={() => handleSubmit()}
+                text="Save"
+                style={{ marginRight: 10 }}
+              />
+              <DefaultButton onClick={() => closePanel()} text="Cancel" />
+            </Fragment>
+          )}
+        </DialogFooter>
+      )}
     >
       <Image
         src={
@@ -210,21 +212,7 @@ function StorefrontDialog({
           }
         })}
       </section>
-      <DialogFooter>
-        {loading ? (
-          <Spinner size={SpinnerSize.large} style={{ marginTop: 30 }} />
-        ) : (
-          <Fragment>
-            <PrimaryButton
-              onClick={() => handleSubmit()}
-              text="Save"
-              style={{ marginRight: 10 }}
-            />
-            <DefaultButton onClick={() => closeDialog()} text="Cancel" />
-          </Fragment>
-        )}
-      </DialogFooter>
-    </Dialog>
+    </Panel>
   );
 }
 

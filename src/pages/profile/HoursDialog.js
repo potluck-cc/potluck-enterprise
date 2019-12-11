@@ -12,6 +12,8 @@ import {
 
 import HoursField from "./HoursField";
 
+import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
+
 const days = [
   "Sunday",
   "Monday",
@@ -32,7 +34,7 @@ const defaultHours = [
   { startTime: "CLOSED", endTime: "CLOSED", day: days[6] }
 ];
 
-function HoursDialog({ hidden, closeDialog, onSave, hours = [] }) {
+function HoursDialog({ hidden, closePanel, onSave, hours = [] }) {
   const [currentHours, setHours] = useState(
     hours && hours.length ? hours : defaultHours
   );
@@ -102,30 +104,29 @@ function HoursDialog({ hidden, closeDialog, onSave, hours = [] }) {
   }
 
   return (
-    <Dialog
-      hidden={hidden}
-      onDismiss={() => closeDialog()}
-      dialogContentProps={{
-        type: DialogType.largeHeader,
-        title: "Dispensary Hours"
-      }}
-      modalProps={{
-        isBlocking: false,
-        containerClassName: "ms-dialogMainOverride-hours"
-      }}
+    <Panel
+      closeButtonAriaLabel="Close"
+      isOpen={hidden}
+      onDismiss={() => closePanel()}
+      type={PanelType.medium}
+      className="order-panel"
+      title="Dispensary Hours"
+      isLightDismiss
+      onRenderFooterContent={() => (
+        <DialogFooter>
+          <PrimaryButton
+            onClick={async () => {
+              await onSave({ hours: JSON.stringify(currentHours) });
+              closePanel();
+            }}
+            text="Save"
+          />
+          <DefaultButton onClick={() => closePanel()} text="Cancel" />
+        </DialogFooter>
+      )}
     >
       {renderFields(currentHours)}
-      <DialogFooter>
-        <PrimaryButton
-          onClick={async () => {
-            await onSave({ hours: JSON.stringify(currentHours) });
-            closeDialog();
-          }}
-          text="Save"
-        />
-        <DefaultButton onClick={() => closeDialog()} text="Cancel" />
-      </DialogFooter>
-    </Dialog>
+    </Panel>
   );
 }
 

@@ -1,17 +1,9 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, memo } from "react";
 import AppContext from "AppContext";
 
-import {
-  useLazyAppSyncQuery,
-  appsyncFetch,
-  useCart,
-  dateFormat,
-  timeFormat
-} from "@potluckmarket/ella";
+import { useLazyAppSyncQuery, appsyncFetch } from "@potluckmarket/ella";
 
 import "./menu.scss";
-
-import Cart from "./Cart";
 
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 
@@ -24,8 +16,6 @@ import {
 import { ImageFit } from "office-ui-fabric-react/lib/Image";
 
 import EditProductPanel from "./EditProductPanel";
-import AddToCartModal from "./AddToCartModal";
-import CheckoutModal from "./CheckoutModal";
 
 import DefaultImage from "../../assets/images/potluck_default.png";
 
@@ -36,14 +26,10 @@ import "react-s-alert/dist/s-alert-css-effects/jelly.css";
 import InfiniteScroll from "react-infinite-scroll-component";
 import MenuFAB from "./MenuFAB";
 
-import moment from "moment";
-
 import client from "client";
 import ListInventoryItems from "api/queries/ListInventoryItems";
 import ListInventoryItemsWithFilter from "api/queries/ListInventoryItemsWithFilter";
 import InventoryItemSubscription from "api/subscriptions/InventoryItemSubscription";
-import CreateOrder from "api/mutations/CreateOrder";
-import UpdateInventoryItemStock from "api/mutations/UpdateInventoryItemStock";
 
 const defaultState = {
   activeProduct: {},
@@ -73,10 +59,7 @@ function Menu() {
     productCards,
     newProduct,
     activeProduct,
-    handleClickProductModal,
-    checkoutModalOpen,
-    initiateSetDiscount,
-    orderComplete
+    handleClickProductModal
   } = state;
 
   const [products, fetchingProducts, fetchProducts] = useLazyAppSyncQuery({
@@ -85,25 +68,6 @@ function Menu() {
     fetchPolicy: "network-only",
     document: category ? ListInventoryItemsWithFilter : ListInventoryItems
   });
-
-  const [
-    cart,
-    {
-      totalItemsInCart,
-      totalDisplayValue,
-      discountDisplayValue,
-      subtotalDisplayValue,
-      discountTypeIsPercentage,
-      taxDisplayValue,
-      total,
-      subtotal,
-      tax,
-      discount,
-      set,
-      clear,
-      remove
-    }
-  ] = useCart([], state.discount, false, 6.625);
 
   useEffect(() => {
     initializeMenu();
@@ -114,6 +78,12 @@ function Menu() {
       products &&
       products.getStoreInventory &&
       products.getStoreInventory.items.length
+    ) {
+      updateProductsInState();
+    } else if (
+      products &&
+      products.getStoreInventoryWithFilters &&
+      products.getStoreInventoryWithFilters.items.length
     ) {
       updateProductsInState();
     }
@@ -137,13 +107,15 @@ function Menu() {
   async function initializeMenu() {
     fetchProducts({
       storeId: id,
-      productType: category
+      metadata: category ? category.toLowerCase() : null
     });
   }
 
   function updateProductsInState() {
     if (category) {
-      return setState("products", [...products.getStoreInventory.items]);
+      return setState("products", [
+        ...products.getStoreInventoryWithFilters.items
+      ]);
     }
 
     setState("products", [
@@ -156,7 +128,18 @@ function Menu() {
     if (products.getStoreInventory && products.getStoreInventory.nextToken) {
       const variables = {
         nextToken: products.getStoreInventory.nextToken,
-        productType: category,
+        metadata: category ? category.toLowerCase() : null,
+        storeId: id
+      };
+
+      fetchProducts(variables);
+    } else if (
+      products.getStoreInventoryWithFilters &&
+      products.getStoreInventoryWithFilters.nextToken
+    ) {
+      const variables = {
+        nextToken: products.getStoreInventoryWithFilters.nextToken,
+        metadata: category ? category.toLowerCase() : null,
         storeId: id
       };
 
@@ -198,7 +181,7 @@ function Menu() {
 
     if (state.products) {
       state.products.map(product => {
-        // subscribeToInventoryItem(product.id);
+        subscribeToInventoryItem(product.id);
 
         return newProductCards.push(
           <DocumentCard
@@ -243,14 +226,17 @@ function Menu() {
                   className="item__title"
                 />
               )}
+
+              {product.quantity && (
+                <DocumentCardTitle
+                  title={
+                    product.isCannabisProduct
+                      ? `${product.quantity} in stock`
+                      : `${product.quantity} grams`
+                  }
+                />
+              )}
             </div>
-            {/* <DocumentCardTitle
-              title={
-                product.isCannabisProduct
-                  ? `${product.quantity} in stock`
-                  : `${product.quantity} grams`
-              }
-            /> */}
           </DocumentCard>
         );
       });
@@ -266,70 +252,6 @@ function Menu() {
       handleClickProductModal: true,
       newProduct: false
     }));
-  }
-
-  function addToCart(product) {
-    const itemAlreadyInCart = cart.findIndex(item => item.id === product.id);
-
-    if (itemAlreadyInCart >= 0) {
-      const updatedCart = [...cart];
-
-      updatedCart[itemAlreadyInCart] = product;
-
-      set(updatedCart);
-    } else {
-      set([...cart, product]);
-    }
-  }
-
-  async function updateStockValueOfItemsInCart() {
-    let cartItemsWithAvailableQuantity = [];
-
-    return cart.map(async item => {
-      if (item.stock >= 3.5) {
-        const update = await appsyncFetch({
-          client,
-          operationType: "mutation",
-          document: UpdateInventoryItemStock,
-          variables: {
-            id: item.id,
-            quantity: weightValues[item.option.weight] * item.quantity
-          }
-        });
-
-        if (update.data.updateStock) {
-          cartItemsWithAvailableQuantity.push(item);
-        }
-      }
-
-      return cartItemsWithAvailableQuantity;
-    });
-  }
-
-  async function checkout() {
-    const date = moment().format(dateFormat);
-    const time = moment().format(timeFormat);
-
-    const cart = await Promise.all(updateStockValueOfItemsInCart()).then(arr =>
-      [].concat(...arr)
-    );
-
-    await appsyncFetch({
-      client,
-      operationType: "mutation",
-      document: CreateOrder,
-      variables: {
-        store: "851e40a3-b63b-4f7d-be37-3cf4065c08b5",
-        storeID: "851e40a3-b63b-4f7d-be37-3cf4065c08b5",
-        total,
-        date,
-        products: JSON.stringify(cart),
-        time,
-        subtotal,
-        tax,
-        discount
-      }
-    });
   }
 
   function updateProductStateWithAGivenProduct(product, operationType) {
@@ -387,69 +309,13 @@ function Menu() {
         </InfiniteScroll>
       )}
 
-      {POS ? (
-        <Cart
-          cart={cart}
-          subtotal={subtotalDisplayValue}
-          cartTotal={totalDisplayValue}
-          discount={discountDisplayValue}
-          discountTypeIsPercentage={discountTypeIsPercentage}
-          totalItems={totalItemsInCart}
-          cancel={clear}
-          remove={remove}
-          editItemInCart={item => {
-            updateState(currentState => ({
-              ...currentState,
-              handleClickProductModal: true,
-              activeProduct: item
-            }));
-          }}
-          initiateCheckout={() => setState("checkoutModalOpen", true)}
-          initiateSetDiscount={() => setState("initiateSetDiscount", true)}
-          tax={taxDisplayValue}
-        />
-      ) : (
-        <EditProductPanel
-          _hidePanel={() => setState("handleClickProductModal", false)}
-          showPanel={handleClickProductModal}
-          newProduct={newProduct}
-          activeProduct={activeProduct}
-          updateProductState={updateProductStateWithAGivenProduct}
-        />
-      )}
-
-      {POS && activeProduct.product ? (
-        <AddToCartModal
-          open={handleClickProductModal}
-          activeProduct={activeProduct}
-          closeModal={() => setState("handleClickProductModal", false)}
-          addToCart={addToCart}
-          weightValues={weightValues}
-        />
-      ) : null}
-
-      {POS && (
-        <CheckoutModal
-          open={checkoutModalOpen}
-          closeModal={() => setState("checkoutModalOpen", false)}
-          total={totalDisplayValue}
-          orderComplete={orderComplete}
-          confirmOrder={async () => {
-            await checkout();
-            setState("orderComplete", true);
-            set([]);
-          }}
-          nextOrder={() => setState("orderComplete", false)}
-          printReceipt={() => alert("printing!")}
-          setDiscount={value => setState("discount", value)}
-          discount={discount}
-          discountType={discountTypeIsPercentage}
-          isDiscount={initiateSetDiscount}
-          cancelInitiateSetDiscount={() =>
-            setState("initiateSetDiscount", false)
-          }
-        />
-      )}
+      <EditProductPanel
+        _hidePanel={() => setState("handleClickProductModal", false)}
+        showPanel={handleClickProductModal}
+        newProduct={newProduct}
+        activeProduct={activeProduct}
+        updateProductState={updateProductStateWithAGivenProduct}
+      />
 
       <MenuFAB
         handleAddProduct={() => {
@@ -479,11 +345,4 @@ function Menu() {
   );
 }
 
-export default Menu;
-
-const weightValues = {
-  eighth: 3.5,
-  quarter: 7,
-  half: 14,
-  ounce: 28
-};
+export default memo(Menu);

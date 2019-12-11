@@ -2,9 +2,8 @@
 @import "../../scss/mixins";
 
 .orders {
-  height: 100vh;
   background-color: white;
-  padding: 1rem;
+  padding: 0.5rem;
   grid-column: 2 / -1;
   grid-row: 2 / -1;
   display: flex;
@@ -12,29 +11,42 @@
   overflow-x: scroll;
 
   @include respond(tab-port) {
+    justify-content: center;
     flex-direction: column;
   }
 
-  @include respond(phone) {
-    flex-direction: column;
-    align-items: center;
-  }
+  // @include respond(tab-land) {
+  //   justify-content: center;
+  //   flex-direction: column;
+  // }
 
-  &__list {
-    background-color: white;
+  .orders-list {
     height: auto;
-    width: 40%;
+    width: 50%;
     overflow-y: scroll;
-    max-height: 95vh;
-    max-width: 40%;
-    border: 1px solid #ccc;
-    box-shadow: 5px 5px 15px -10px #888;
+    max-width: 50%;
     position: relative;
+    display: flex;
+    justify-items: center;
+    padding: 1rem;
+    flex-direction: column;
 
     @include respond(tab-port) {
       max-width: 100%;
-      width: 100%;
-      height: 40vh;
+      min-width: 100%;
+      height: 100%;
+      align-items: center;
+      padding: 0;
+
+      .infinite-scroll-component {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+      }
+
+      & > * {
+        width: 100%;
+      }
     }
 
     @include respond(phone) {
@@ -43,107 +55,149 @@
       min-height: fit-content;
     }
 
-    .list {
-      &__header {
-        height: 50px;
-        min-width: 100%;
-        background-color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #ccc;
-        position: absolute;
+    .list-header {
+      min-height: 80px;
+      max-width: 33%;
+      min-width: 33%;
+      max-height: 80px;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      box-shadow: 5px 5px 10px -10px #888;
+      position: fixed;
+      z-index: 999;
+      background-color: white;
+
+      @include respond(tab-port) {
+        max-width: 70%;
+        min-width: 70%;
+      }
+
+      // @include respond(tab-land) {
+      //   max-width: 60%;
+      //   min-width: 60%;
+      //   align-self: center;
+      // }
+
+      .list-header-combobox {
+        width: 70%;
+      }
+
+      .list-header-datepicker {
+        width: 9.6%;
+        color: transparent;
         z-index: 999;
 
-        @include respond(phone) {
-          overflow-y: scroll;
-          width: 240px;
+        input {
+          color: transparent;
         }
       }
 
-      &__options {
-        padding: 0.9rem;
-        font-size: 1rem;
-        display: flex;
-
-        & > * {
-          margin-left: 0.5rem;
-        }
-      }
-
-      &__datepicker {
-        padding: 0.5rem;
-      }
-
-      .ms-List-cell {
-        min-height: auto;
-      }
-
-      &__cell {
+      .datepicker-button {
+        height: 40px;
+        width: 40px;
         background-color: white;
-        border-bottom: 1px solid #ccc;
-        height: 4rem;
-        display: flex;
-        justify-content: space-between;
-        transition: all 0.5s;
-        padding: 0.5rem;
+        border-color: black;
+        cursor: pointer;
 
-        @include respond(phone) {
-          width: 100%;
-        }
-
-        &:first-of-type {
-          margin-top: 50px;
-
-          @include respond(phone) {
-            margin-top: 65px;
-          }
-        }
-
-        &:hover {
-          background-color: rgba(#ccc, 0.6);
-        }
-
-        &--active {
-          background-color: rgba(#ccc, 0.6);
+        i {
+          font-size: 1rem;
         }
       }
 
-      &__data {
-        display: flex;
+      .calendar {
+        position: absolute;
+        background-color: white;
+        border: 1px solid gray;
+        opacity: 1;
+        display: initial;
+      }
+
+      .calendar-invisible {
+        display: none;
+        opacity: 0;
+      }
+    }
+
+    .order-cell {
+      background-color: white;
+      border: 1px solid #ccc;
+      height: 80px;
+      width: 90%;
+      display: flex;
+      justify-content: space-between;
+      transition: all 0.5s;
+      border-radius: 10px;
+      box-shadow: 5px 5px 10px -10px #888;
+      margin-bottom: 5px;
+      cursor: pointer;
+      background-color: white;
+      align-self: center;
+      text-align: center;
+
+      &:first-of-type {
+        margin-top: 100px;
+      }
+
+      @include respond(tab-port) {
+        width: 80%;
+      }
+
+      // @include respond(tab-land) {
+      //   width: 70%;
+      // }
+
+      @include respond(phone) {
+        width: 99%;
+      }
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+
+      &:hover {
+        background-color: rgba(#ccc, 0.6);
+      }
+
+      &--active {
+        background-color: rgba(#ccc, 0.6);
+      }
+
+      .order-date {
+        @include centerHorVer();
+        flex-direction: column;
+        padding: 2rem;
+
+        @include respond(phone) {
+          text-align: center;
+        }
+      }
+
+      .order-name-and-status {
+        @include centerHorVer();
         flex-direction: column;
 
-        .order-num {
-          font-size: 1.3rem;
-          margin-bottom: 0.5rem;
+        @include respond(phone) {
+          text-align: center;
         }
+      }
 
-        .order-details {
-          .items-num {
-            font-size: 0.9rem;
-            margin-right: 1rem;
+      .order-total-and-order-number {
+        @include centerHorVer();
+        flex-direction: column;
+        padding: 2rem;
 
-            @include respond(phone-land) {
-              margin-right: 0.5rem;
-            }
-          }
-
-          .total {
-            font-size: 0.8rem;
-          }
+        @include respond(phone) {
+          text-align: center;
         }
       }
     }
   }
 
   &__data {
-    height: 100%;
-    min-height: 95vh;
-    width: 50%;
-
-    display: flex;
-    flex-direction: column;
-
     @include respond(tab-port) {
       margin-top: 1rem;
       width: 100%;
@@ -272,6 +326,529 @@
           &__details {
           }
         }
+      }
+    }
+  }
+}
+
+// put here because fabric modals are appearing at the end of dom tree
+
+.ms-Dialog-inner {
+  padding: 0;
+}
+
+.selected-order {
+  height: 100%;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 0.5px solid rgba(#ccc, 0.4);
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px -10px #888;
+  position: relative;
+  overflow: scroll;
+
+  @include respond(tab-port) {
+    width: 100%;
+    border: none;
+    margin-bottom: 0;
+
+    height: 50%;
+    overflow: scroll;
+  }
+
+  // @include respond(tab-land-lg) {
+  //   width: 100%;
+  //   border: none;
+  //   margin-bottom: 0;
+
+  //   height: 50%;
+  //   overflow: scroll;
+  // }
+
+  .order-module-header {
+    height: 70px;
+    width: 100%;
+    border-bottom: 1.5px solid #f6f5fb;
+    display: flex;
+    justify-content: flex-end;
+    // background-color: white;
+
+    height: auto;
+    overflow: scroll;
+
+    @include respond(tab-port) {
+      justify-content: flex-start;
+    }
+
+    .tabs {
+      padding-left: 1rem;
+      display: flex;
+      align-items: center;
+      height: 100%;
+      width: 30%;
+
+      @include respond(tab-port) {
+        width: 100%;
+      }
+
+      // @include respond(tab-land) {
+      //   width: 100%;
+      // }
+
+      .tab {
+        color: black;
+
+        &:hover {
+          color: $light-green;
+        }
+
+        &:last-of-type {
+          margin-left: 1rem;
+        }
+      }
+    }
+
+    .actions-container {
+      display: flex;
+      align-items: center;
+      width: 60%;
+      position: relative;
+
+      .actions {
+        list-style-type: none;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+
+        @include respond(tab-port) {
+          justify-content: flex-start;
+          padding: 0;
+        }
+
+        // @include respond(tab-land) {
+        //   justify-content: flex-start;
+        // }
+
+        .action {
+          width: 50px;
+          height: 50px;
+          background-color: #ccc;
+          margin-left: 10px;
+          border-radius: 50%;
+          cursor: pointer;
+          @include centerHorVer();
+          // position: relative;
+
+          &:hover {
+            opacity: 0.6;
+
+            i {
+              color: blue;
+            }
+          }
+
+          i {
+            font-size: 25px;
+            width: 45%;
+            height: 45%;
+          }
+
+          &:last-of-type {
+            margin-right: 10px;
+            background-color: transparent;
+
+            @include respond(tab-port) {
+              display: none;
+            }
+
+            &:hover {
+              i {
+                color: red !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .order-module-order-details {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #f6f5fb;
+
+    @include respond(tab-port) {
+      min-height: 100vh;
+      // justify-content: space-between;
+    }
+
+    // @include respond(tab-land-lg) {
+    //   min-height: 100vh;
+    // }
+
+    .data {
+      display: flex;
+      width: 100%;
+      height: 50%;
+      background-color: white;
+      height: auto;
+      overflow: scroll;
+
+      @include respond(tab-port-lg) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        overflow: initial;
+      }
+
+      .sales-data {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        width: 80%;
+
+        @include respond(tab-port-lg) {
+          align-items: center;
+          padding: 0;
+          width: 100%;
+        }
+
+        & > * {
+          margin-bottom: 10px;
+        }
+
+        .order-status {
+          width: 45%;
+          padding: 0.5rem 2rem;
+          text-align: center;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          & > * {
+            &:first-child {
+              margin-right: 5px;
+            }
+          }
+
+          .order-status-indicator {
+            height: 10px;
+            width: 10px;
+            background-color: white;
+            border-radius: 50%;
+          }
+
+          .order-status-text {
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+          }
+        }
+
+        .dates {
+          display: flex;
+          justify-content: space-evenly;
+          position: relative;
+          text-align: center;
+
+          @include respond(tab-port-lg) {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .date {
+            display: flex;
+            align-items: center;
+            width: 50%;
+
+            @include respond(tab-port-lg) {
+              justify-content: center;
+            }
+
+            .icon-container {
+              min-width: 64px;
+              height: 64px;
+              border: 1px solid #ccc;
+              border-radius: 50%;
+              box-shadow: 5px 5px 20px -10px #888;
+              @include centerHorVer();
+
+              .icon {
+                width: 50px;
+                height: 50px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+              }
+
+              .route {
+                background-image: url("../../assets/images/route.png");
+              }
+
+              .calendar {
+                width: 40px;
+                background-image: url("../../assets/images/calendar.png");
+              }
+            }
+
+            .details {
+              display: flex;
+              flex-direction: column;
+              margin-left: 10px;
+            }
+          }
+        }
+      }
+
+      .customer-data {
+        display: flex;
+        padding: 0.5rem 1.5rem;
+        height: 90%;
+        width: 70%;
+
+        @include respond(tab-port-lg) {
+          width: 90%;
+        }
+
+        .data-container {
+          height: 100%;
+          width: 100%;
+          @include centerHorVer();
+          flex-direction: column;
+          justify-content: space-evenly;
+          border: 1px solid #ccc;
+          text-align: center;
+          border-radius: 15px;
+          box-shadow: 5px 5px 20px -10px #888;
+
+          // @include respond(tab-port) {
+          //   padding: 0.8rem;
+          // }
+
+          button {
+            text-align: center;
+          }
+        }
+      }
+
+      .actions {
+        display: flex;
+
+        & > * {
+          width: 35%;
+          margin: 1rem 1rem;
+          text-transform: uppercase;
+
+          &:first-of-type {
+            background-color: rgba(red, 0.6);
+          }
+        }
+      }
+    }
+
+    .product-list {
+      background-color: #f6f5fb;
+      width: 100%;
+      height: 50%;
+      overflow-x: scroll;
+
+      @include respond(tab-port-lg) {
+        height: auto;
+        overflow: initial;
+        // height: 30%;
+      }
+
+      .categories {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 90%;
+        padding: 1rem 2rem;
+        text-align: center;
+
+        @include respond(tab-port-lg) {
+          padding: 1rem;
+        }
+
+        & > * {
+          min-width: 100px;
+          max-width: 100px;
+
+          @include respond(tab-port-lg) {
+            min-width: 55px;
+            max-width: 55px;
+          }
+        }
+      }
+
+      .list-container {
+        overflow-x: scroll;
+
+        .products {
+          padding: 1rem;
+          overflow-x: scroll;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+
+          .product {
+            background-color: white;
+            width: 90%;
+            height: 50px;
+            border-radius: 15px;
+            box-shadow: 5px 5px 20px -10px #888;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+
+            &:not(:first-of-type) {
+              margin-top: 10px;
+            }
+
+            & > * {
+              min-width: 70px;
+              max-width: 70px;
+            }
+
+            .product-image-container {
+              position: relative;
+
+              .product-image {
+                background-size: contain !important;
+              }
+
+              .product-image-badge {
+                background-color: red;
+                position: absolute;
+                top: -10px;
+                right: -15px;
+                border-radius: 50%;
+                height: 20px;
+                width: 20px;
+                text-align: center;
+                color: white;
+                box-shadow: 5px 5px 20px -10px #888;
+                border: 1px solid rgba(black, 0.3);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.mobile-view {
+  .orders-list {
+    @include respond(tab-port-lg) {
+      max-width: 100%;
+      min-width: 100%;
+      height: 100%;
+      align-items: center;
+      padding: 0;
+
+      .infinite-scroll-component {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+      }
+
+      & > * {
+        width: 100%;
+      }
+    }
+
+    @include respond(tab-land-lg) {
+      max-width: 100%;
+      min-width: 100%;
+
+      .infinite-scroll-component {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    .list-header {
+      @include respond(tab-port-lg) {
+        max-width: 70%;
+        min-width: 70%;
+      }
+
+      @include respond(tab-land-lg) {
+        max-width: 60%;
+        min-width: 60%;
+        align-self: center;
+      }
+    }
+
+    .order-cell {
+      @include respond(tab-port-lg) {
+        width: 80%;
+      }
+
+      @include respond(tab-land-lg) {
+        width: 70%;
+      }
+
+      @include respond(phone) {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.selected-order-mobile {
+  @include respond(tab-port-lg) {
+    min-height: 100vh;
+    width: 100% !important;
+    border: none;
+    margin-bottom: 0;
+
+    height: 50%;
+    overflow: scroll;
+  }
+
+  @include respond(tab-land-lg) {
+    width: 100%;
+    border: none;
+    margin-bottom: 0;
+
+    height: 50%;
+    overflow: scroll;
+  }
+
+  .order-module-order-details {
+    @include respond(tab-port-lg) {
+      min-height: 100vh;
+      // justify-content: space-between;
+    }
+
+    @include respond(tab-land-lg) {
+      min-height: 100vh;
+    }
+
+    .order-status {
+      width: auto !important;
+    }
+
+    .customer-data {
+      @include respond(tab-port-lg) {
+        width: 50% !important;
+      }
+
+      @include respond(phone) {
+        width: 70% !important;
       }
     }
   }

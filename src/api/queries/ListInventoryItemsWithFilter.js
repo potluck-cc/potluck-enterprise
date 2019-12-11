@@ -3,13 +3,13 @@ import gql from "graphql-tag";
 export default gql`
   query ListInventoryItems(
     $storeId: ID!
+    $metadata: String
     $nextToken: String
-    $productType: String
   ) {
-    getStoreInventory(
+    getStoreInventoryWithFilters(
       storeId: $storeId
       nextToken: $nextToken
-      filter: { productType: { eq: $productType } }
+      metadata: $metadata
     ) {
       items {
         id

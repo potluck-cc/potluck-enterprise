@@ -66,17 +66,9 @@
   }
 }
 
-.ms-dialogMainOverride-hours {
-  min-width: 50% !important;
-  @include respond(tab-port) {
-    min-width: 95% !important;
-  }
-}
-
 .hours-field {
   @include centerHorVer();
   flex-wrap: wrap;
-  border-bottom: 2px solid #eee;
   padding-bottom: 1rem;
   padding-top: 1rem;
 
@@ -84,6 +76,8 @@
     flex-direction: column;
     text-align: center;
     padding: 2rem;
+    border-bottom: 2px solid #eee;
+    max-width: 100%;
   }
 
   &__text {
