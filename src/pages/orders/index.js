@@ -1,7 +1,8 @@
 import React, { Fragment, useContext, useState, useEffect } from "react";
 import AppContext from "AppContext";
+import OrderContext from "OrderContext";
 
-import { useLazyAppSyncQuery, useTime } from "@potluckmarket/ella";
+import { useLazyAppSyncQuery } from "@potluckmarket/ella";
 import "./orders.scss";
 
 import Alert from "react-s-alert";
@@ -15,31 +16,75 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import OrderHeader from "./OrderHeader";
 import OrderCell from "./OrderCell";
 import OrderModule from "./OrderModule";
-import OrderDetails from "./OrderDetails";
+import OrderModuleHeader from "./OrderModuleHeader";
+import {
+  isMobile,
+  isTablet,
+  isIOS,
+  isMobileSafari,
+  isIOS13
+} from "react-device-detect";
 
 import client from "client";
-import ListOrders from "api/queries/ListOrders";
+import GetOrdersByStore from "api/queries/GetOrdersByStore";
+import GetOrdersByStoreWithFilter from "api/queries/GetOrdersByStoreAndDateWithStatusFilter";
+import GetOrdersByStoreAndCode from "api/queries/GetOrdersByStoreAndCode";
 import UpdateOrder from "api/mutations/UpdateOrder";
 
-const useForceUpdate = () => useState()[1];
+import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 
-function Orderss() {
+import moment from "moment";
+
+const initialDateRange = {
+  from: moment()
+    .startOf("week")
+    .unix(),
+  to: moment()
+    .endOf("week")
+    .unix()
+};
+
+function Orders() {
   const appContext = useContext(AppContext);
-
-  const [status, setStatus] = useState("new");
+  const orderContext = useContext(OrderContext);
+  const [status, setStatus] = useState(null);
   const [refetch, isRefetch] = useState(false);
+  const [activeSearchCode, setActiveSearchCode] = useState(null);
   const [orderCards, setOrderCards] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState({});
-  const [date, omit, todayAsAJSDate, { selectDate }] = useTime();
-  const [selectedJSDate, setJSDate] = useState(todayAsAJSDate);
-
-  const forceUpdate = useForceUpdate();
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [dateRange, setDateRange] = useState(initialDateRange);
+  const mobileView = isMobile || isTablet || isIOS13;
 
   const [listOrdersRes, fetchOrdersLoading, fetchOrders] = useLazyAppSyncQuery({
     client,
     operationType: "query",
-    document: ListOrders,
+    document: GetOrdersByStore,
     fetchPolicy: "no-cache",
+    handleError: () => renderErrorAlert()
+  });
+
+  const [
+    listOrdersWithStatusFilterRes,
+    loadingFilteredOrders,
+    fetchOrdersWithStatusFilter
+  ] = useLazyAppSyncQuery({
+    client,
+    operationType: "query",
+    document: GetOrdersByStoreWithFilter,
+    fetchPolicy: "network-only",
+    handleError: () => renderErrorAlert()
+  });
+
+  const [
+    listOrdersByCodeRes,
+    loadingListOrdersByCode,
+    fetchOrdersByCode
+  ] = useLazyAppSyncQuery({
+    client,
+    operationType: "query",
+    document: GetOrdersByStoreAndCode,
+    fetchPolicy: "network-only",
     handleError: () => renderErrorAlert()
   });
 
@@ -64,11 +109,17 @@ function Orderss() {
   }
 
   function fetchMoreOrders() {
-    if (listOrdersRes.listOrders && listOrdersRes.listOrders.nextToken) {
+    if (
+      listOrdersRes.getOrdersByStoreAndDate &&
+      listOrdersRes.getOrdersByStoreAndDate.nextToken
+    ) {
+      const { from, to } = dateRange;
+
       const variables = {
-        date,
+        from,
+        to,
         status,
-        nextToken: listOrdersRes.listOrders.nextToken,
+        nextToken: listOrdersRes.getOrdersByStoreAndDate.nextToken,
         fetchPolicy: "no-cache"
       };
 
@@ -77,9 +128,26 @@ function Orderss() {
   }
 
   function initializeOrderPage() {
-    fetchOrders({ date, status, nextToken: null });
-    appContext.clearNewOrders();
-    appContext.clearOrderCount();
+    const { from, to } = dateRange;
+
+    fetchOrders({
+      storeId: appContext.activeStore.id,
+      from,
+      to,
+      nextToken: null
+    });
+  }
+
+  function initializeOrderPageWithFilter() {
+    const { to, from } = dateRange;
+
+    fetchOrdersWithStatusFilter({
+      storeId: appContext.activeStore.id,
+      nextToken: null,
+      to,
+      from,
+      status
+    });
   }
 
   function createOrderCards(orders = []) {
@@ -91,7 +159,14 @@ function Orderss() {
           key={order.id}
           order={order}
           selected={order.id === selectedOrder.id}
-          _onClick={() => setSelectedOrder(order)}
+          _onClick={() => {
+            if (mobileView) {
+              setSelectedOrder(order);
+              setIsPanelOpen(true);
+            } else {
+              setSelectedOrder(order);
+            }
+          }}
         />
       );
     });
@@ -99,93 +174,188 @@ function Orderss() {
     return newOrderCards;
   }
 
-  function onFetchOrders(update = false) {
-    if (
-      listOrdersRes &&
-      listOrdersRes.listOrders &&
-      listOrdersRes.listOrders.items
-    ) {
+  function onFetchOrders({ update = false, orders }) {
+    if (orders) {
       setOrderCards(currentOrderCards => {
         if (refetch || update) {
-          return createOrderCards(listOrdersRes.listOrders.items);
+          return createOrderCards(orders);
         }
 
-        return [
-          ...currentOrderCards,
-          ...createOrderCards(listOrdersRes.listOrders.items)
-        ];
+        return [...currentOrderCards, ...createOrderCards(orders)];
       });
     }
   }
 
-  function onUpdateOrder() {
-    if (Object.keys(updateOrderRes).length) {
+  function onUpdateOrder(order) {
+    if (Object.keys(order).length) {
       setOrderCards(currentOrderCards =>
-        currentOrderCards.filter(
-          orderCard => orderCard.key !== updateOrderRes.updateOrder.id
-        )
+        currentOrderCards.map(orderCard => {
+          if (orderCard.key === order.id) {
+            return (
+              <OrderCell
+                key={order.id}
+                order={order}
+                selected={order.id === selectedOrder.id}
+                _onClick={() => {
+                  if (isMobile) {
+                    setSelectedOrder(order);
+                    setIsPanelOpen(true);
+                  } else {
+                    setSelectedOrder(order);
+                  }
+                }}
+              />
+            );
+          } else {
+            return {
+              ...orderCard,
+              props: {
+                ...orderCard.props,
+                selected: false
+              }
+            };
+          }
+        })
       );
+
+      setSelectedOrder(order);
     }
-
-    setSelectedOrder({});
-  }
-
-  function onSelectDate(date) {
-    selectDate(date);
-    setJSDate(date);
   }
 
   function addIncomingOrdersFromSubscription() {
-    if (status === "new" && selectedJSDate === todayAsAJSDate) {
-      const incomingSubscriptionOrders = createOrderCards(appContext.orders);
-
-      if (incomingSubscriptionOrders.length) {
-        setOrderCards(new Set([...incomingSubscriptionOrders, ...orderCards]));
-      }
+    if (
+      status !== "completed" &&
+      status !== "accepted" &&
+      status !== "rejected" &&
+      orderContext.orders.length &&
+      Object.values(dateRange)[0] === Object.values(initialDateRange)[0] &&
+      Object.values(dateRange)[1] === Object.values(initialDateRange)[1]
+    ) {
+      const incomingSubscriptionOrders = createOrderCards(orderContext.orders);
+      setOrderCards(currentOrderCards => [
+        ...incomingSubscriptionOrders,
+        ...currentOrderCards
+      ]);
     }
   }
+
+  useEffect(() => {
+    orderContext.clearOrders();
+    orderContext.clearOrderCount();
+  }, []);
 
   useEffect(() => {
     initializeOrderPage();
   }, []);
 
   useEffect(() => {
-    fetchOrders({ date, status, nextToken: null });
-    isRefetch(true);
-  }, [status, date]);
-
-  useEffect(() => {
-    onFetchOrders();
-    isRefetch(false);
-  }, [listOrdersRes]);
-
-  useEffect(() => {
-    onUpdateOrder();
+    if (updateOrderRes && updateOrderRes.updateOrder) {
+      onUpdateOrder(updateOrderRes.updateOrder);
+    }
   }, [updateOrderRes]);
 
   useEffect(() => {
     addIncomingOrdersFromSubscription();
-  }, [appContext.orders]);
+  }, [orderContext.orders]);
 
   useEffect(() => {
     if (Object.keys(onFetchOrders).length) {
-      onFetchOrders(true);
+      onFetchOrders({ update: true });
+      isRefetch(false);
+    }
+
+    if (Object.keys(selectedOrder) && !mobileView) {
+      onUpdateOrder(selectedOrder);
     }
   }, [selectedOrder]);
 
+  useEffect(() => {
+    if (status) {
+      isRefetch(true);
+      initializeOrderPageWithFilter();
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (
+      listOrdersWithStatusFilterRes &&
+      listOrdersWithStatusFilterRes.getOrdersByStoreAndDate &&
+      listOrdersWithStatusFilterRes.getOrdersByStoreAndDate.items &&
+      loadingFilteredOrders === false
+    ) {
+      onFetchOrders({
+        orders: listOrdersWithStatusFilterRes.getOrdersByStoreAndDate.items
+      });
+
+      isRefetch(false);
+    }
+  }, [listOrdersWithStatusFilterRes, fetchOrdersLoading]);
+
+  useEffect(() => {
+    if (
+      listOrdersRes &&
+      listOrdersRes.getOrdersByStoreAndDate &&
+      listOrdersRes.getOrdersByStoreAndDate.items &&
+      fetchOrdersLoading === false
+    ) {
+      onFetchOrders({
+        orders: listOrdersRes.getOrdersByStoreAndDate.items
+      });
+
+      isRefetch(false);
+    }
+  }, [listOrdersRes, fetchOrdersLoading]);
+
+  useEffect(() => {
+    isRefetch(true);
+
+    if (status) {
+      initializeOrderPageWithFilter();
+    } else {
+      initializeOrderPage();
+    }
+  }, [dateRange]);
+
+  useEffect(() => {
+    if (activeSearchCode) {
+      isRefetch(true);
+
+      fetchOrdersByCode({
+        storeId: appContext.activeStore.id,
+        code: activeSearchCode
+      });
+    }
+  }, [activeSearchCode]);
+
+  useEffect(() => {
+    if (
+      listOrdersByCodeRes &&
+      listOrdersByCodeRes.getOrderByStoreAndCode &&
+      loadingListOrdersByCode === false
+    ) {
+      onFetchOrders({
+        orders: [listOrdersByCodeRes.getOrderByStoreAndCode]
+      });
+
+      isRefetch(false);
+    }
+  }, [listOrdersByCodeRes, loadingListOrdersByCode]);
+
   return (
-    <div className="orders">
-      <div className="orders__list" id="ordersList">
+    <div className={mobileView ? "orders  mobile-view" : "orders"}>
+      <div className="orders-list" id="ordersList">
         <OrderHeader
           onCheckboxChange={setStatus}
-          onSelectDate={onSelectDate}
-          rawDate={selectedJSDate}
+          setStatus={setStatus}
           selectedCheckbox={status}
+          setActiveSearchCode={setActiveSearchCode}
+          setDateRange={setDateRange}
         />
+
         <InfiniteScroll
           hasMore={
-            listOrdersRes && listOrdersRes.listOrders
-              ? listOrdersRes.listOrders.nextToken
+            listOrdersRes && listOrdersRes.getOrdersByStoreAndDate
+              ? listOrdersRes.getOrdersByStoreAndDate.nextToken
               : false
           }
           dataLength={orderCards.length}
@@ -203,21 +373,64 @@ function Orderss() {
             />
           }
         >
-          {orderCards}
+          {refetch
+            ? [
+                <Spinner
+                  size={SpinnerSize.large}
+                  style={{
+                    marginTop: 100,
+                    width: "100%",
+                    height: 196
+                  }}
+                />
+              ]
+            : orderCards}
         </InfiniteScroll>
       </div>
-      <div className="orders__data">
-        {Object.keys(selectedOrder).length ? (
-          <Fragment>
-            <OrderModule
-              order={selectedOrder}
-              time={selectedOrder.time}
-              updateOrder={updateOrder}
-              updatingOrder={updateOrderLoading}
-            />
 
-            <OrderDetails products={selectedOrder.products} />
-          </Fragment>
+      <div
+        className="selected-order"
+        style={{
+          border: Object.keys(selectedOrder).length ? null : "none",
+          boxShadow: Object.keys(selectedOrder).length ? null : "none",
+          display: mobileView ? "none" : null
+        }}
+      >
+        {Object.keys(selectedOrder).length ? (
+          !mobileView ? (
+            <Fragment>
+              <OrderModuleHeader close={() => setSelectedOrder({})} />
+              <OrderModule
+                order={selectedOrder}
+                time={selectedOrder.time}
+                updateOrder={updateOrder}
+                updatingOrder={updateOrderLoading}
+                mobileView={mobileView}
+              />
+            </Fragment>
+          ) : (
+            <Panel
+              closeButtonAriaLabel="Close"
+              isOpen={isPanelOpen}
+              onDismiss={() => {
+                setIsPanelOpen(false);
+                setSelectedOrder({});
+              }}
+              type={PanelType.large}
+              className="order-panel"
+              isLightDismiss
+            >
+              <div className="selected-order selected-order-mobile">
+                <OrderModule
+                  order={selectedOrder}
+                  time={selectedOrder.time}
+                  updateOrder={updateOrder}
+                  updatingOrder={updateOrderLoading}
+                  mobileView={mobileView}
+                />
+              </div>
+            </Panel>
+          )
         ) : null}
       </div>
       <Alert stack={{ limit: 1 }} />
@@ -225,4 +438,4 @@ function Orderss() {
   );
 }
 
-export default Orderss;
+export default Orders;

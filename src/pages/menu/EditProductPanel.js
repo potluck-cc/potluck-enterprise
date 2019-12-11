@@ -98,16 +98,16 @@ function EditProductPanel({
       required: false,
       error: false
     },
-    // {
-    //   type: "text",
-    //   fieldName: "quantity",
-    //   value: "",
-    //   defaultValue: "",
-    //   dirty: false,
-    //   touched: false,
-    //   required: false,
-    //   error: false
-    // },
+    {
+      type: "text",
+      fieldName: "quantity",
+      value: "",
+      defaultValue: "",
+      dirty: false,
+      touched: false,
+      required: false,
+      error: false
+    },
     {
       type: "text",
       fieldName: "description",
@@ -137,22 +137,22 @@ function EditProductPanel({
       touched: false,
       required: false,
       error: false
+    },
+    {
+      type: "list",
+      fieldName: "options",
+      value: [],
+      defaultValue: [
+        { weight: CannabisWeights.eighth, amount: null },
+        { weight: CannabisWeights.quarter, amount: null },
+        { weight: CannabisWeights.half, amount: null },
+        { weight: CannabisWeights.ounce, amount: null }
+      ],
+      dirty: false,
+      touched: false,
+      required: false,
+      error: false
     }
-    // {
-    //   type: "list",
-    //   fieldName: "options",
-    //   value: [],
-    //   defaultValue: [
-    //     { weight: CannabisWeights.eighth, amount: "" },
-    //     { weight: CannabisWeights.quarter, amount: "" },
-    //     { weight: CannabisWeights.half, amount: "" },
-    //     { weight: CannabisWeights.ounce, amount: "" }
-    //   ],
-    //   dirty: false,
-    //   touched: false,
-    //   required: false,
-    //   error: false
-    // }
   ];
 
   const {
@@ -185,39 +185,39 @@ function EditProductPanel({
   }, [activeProduct]);
 
   useEffect(() => {
-    // if (isCannabisProduct) {
-    //   mutateFieldPropertyValue("price", "required", true);
-    //   mutateFieldPropertyValue("options", "required", false);
-    // } else {
-    //   mutateFieldPropertyValue("price", "required", false);
-    //   mutateFieldPropertyValue("options", "required", true);
-    // }
+    if (isCannabisProduct) {
+      mutateFieldPropertyValue("price", "required", true);
+      mutateFieldPropertyValue("options", "required", false);
+    } else {
+      mutateFieldPropertyValue("price", "required", false);
+      mutateFieldPropertyValue("options", "required", true);
+    }
   }, [isCannabisProduct]);
 
-  // function initializeFieldState() {
-  //   if (newProduct) {
-  //     setIsCannabisProduct(false);
-  //     mutateFieldPropertyValue("price", "required", false);
-  //     mutateFieldPropertyValue("options", "required", true);
-  //   } else if (activeProduct) {
-  //     setIsCannabisProduct(activeProduct.isCannabisProduct);
-  //     mutateFieldPropertyValue(
-  //       "price",
-  //       "required",
-  //       activeProduct.isCannabisProduct ? true : false
-  //     );
-  //     mutateFieldPropertyValue(
-  //       "options",
-  //       "required",
-  //       activeProduct.isCannabisProduct ? false : true
-  //     );
-  //   } else {
-  //     setIsCannabisProduct(true);
-  //     updateField("options", null);
-  //     mutateFieldPropertyValue("price", "required", true);
-  //     mutateFieldPropertyValue("options", "required", false);
-  //   }
-  // }
+  function initializeFieldState() {
+    if (newProduct) {
+      setIsCannabisProduct(false);
+      mutateFieldPropertyValue("price", "required", false);
+      mutateFieldPropertyValue("options", "required", true);
+    } else if (activeProduct) {
+      setIsCannabisProduct(activeProduct.isCannabisProduct);
+      mutateFieldPropertyValue(
+        "price",
+        "required",
+        activeProduct.isCannabisProduct ? true : false
+      );
+      mutateFieldPropertyValue(
+        "options",
+        "required",
+        activeProduct.isCannabisProduct ? false : true
+      );
+    } else {
+      setIsCannabisProduct(true);
+      updateField("options", null);
+      mutateFieldPropertyValue("price", "required", true);
+      mutateFieldPropertyValue("options", "required", false);
+    }
+  }
 
   function renderErrorAlert(
     alertMessage = "Something went wrong! Please try again!"
@@ -398,9 +398,9 @@ function EditProductPanel({
         }
       }
 
-      if (key === "thc" || key === "cbd") {
-        changedValues[key] = null;
-      }
+      // if (key === "thc" || key === "cbd") {
+      //   changedValues[key] = null;
+      // }
     }
 
     return changedValues;
@@ -437,7 +437,8 @@ function EditProductPanel({
             storeId: id,
             createdAt: createTimestamp(),
             latitude,
-            longitude
+            longitude,
+            metadata: `${updatedFormValues.productType.toLowerCase()}-${foundProduct.slug}`
           });
 
           updateProductState(newInventoryItem, null);
@@ -459,8 +460,7 @@ function EditProductPanel({
             const updatedInventoryItem = await editInventoryItem({
               ...updatedFormValues,
               id: activeProduct.id,
-              storeId: id,
-              createdAt: activeProduct.createdAt
+              storeId: id
             });
 
             updateProductState(updatedInventoryItem, "edit");
@@ -468,8 +468,7 @@ function EditProductPanel({
             const updatedInventoryItem = await editInventoryItem({
               ...updatedFormValues,
               id: activeProduct.id,
-              storeId: id,
-              createdAt: activeProduct.createdAt
+              storeId: id
             });
 
             updateProductState(updatedInventoryItem, "edit");

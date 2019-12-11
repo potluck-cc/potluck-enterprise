@@ -39,3 +39,40 @@ html {
   height: 100%;
   width: 100%;
 }
+
+.id-dialog {
+  max-width: 50% !important;
+  width: 50% !important;
+  padding: 2rem;
+
+  @include respond(tab-port) {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .product-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      height: 300px;
+      width: 500px;
+    }
+  }
+}
+
+.order-panel {
+  // padding: 0;
+
+  .ms-Panel-content {
+    padding: 0;
+  }
+}
+
+.ms-dialogMainOverride-hours {
+  min-width: 50% !important;
+  @include respond(tab-port) {
+    min-width: 95% !important;
+  }
+}

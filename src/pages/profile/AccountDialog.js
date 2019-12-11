@@ -62,7 +62,8 @@ function AccountSettings({
           justifyContent: "space-evenly",
           alignItems: "center",
           flexDirection: "column",
-          textAlign: "center"
+          textAlign: "center",
+          padding: 10
         }}
       >
         <TextField

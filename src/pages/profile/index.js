@@ -23,9 +23,9 @@ function Profile() {
     activeStore,
     user: { username }
   } = useContext(AppContext);
-  const [infoDialog, toggleInfoDialog] = useBoolean(true);
-  const [hoursDialog, toggleHoursDialog] = useBoolean(true);
-  const [storefrontDialog, toggleStorefrontDialog] = useBoolean(true);
+  const [infoPanel, toggleInfoPanel] = useBoolean(false);
+  const [hoursPanel, toggleHoursPanel] = useBoolean(false);
+  const [storefrontPanel, toggleStorefrontPanel] = useBoolean(false);
   const [dispensary, updateDispensary] = useState(activeStore);
   const [settingsDialog, toggleSettingsDialog] = useBoolean(true);
 
@@ -75,7 +75,7 @@ function Profile() {
 
           <PrimaryButton
             className="hours-card__btn"
-            onClick={() => toggleHoursDialog(false)}
+            onClick={() => toggleHoursPanel(true)}
             text="Update Hours"
           />
         </div>
@@ -87,7 +87,7 @@ function Profile() {
 
           <PrimaryButton
             className="hours-card__btn"
-            onClick={() => toggleStorefrontDialog(false)}
+            onClick={() => toggleStorefrontPanel(true)}
             text="Update Storefront"
           />
         </div>
@@ -99,7 +99,7 @@ function Profile() {
 
           <PrimaryButton
             className="hours-card__btn"
-            onClick={() => toggleInfoDialog(false)}
+            onClick={() => toggleInfoPanel(true)}
             text="Update Information"
           />
         </div>
@@ -118,23 +118,23 @@ function Profile() {
       </div>
 
       <StorefrontDialog
-        hidden={storefrontDialog}
-        closeDialog={() => toggleStorefrontDialog(true)}
+        hidden={storefrontPanel}
+        closePanel={() => toggleStorefrontPanel(false)}
         onSave={onSaveInformation}
         dispensary={dispensary}
       />
 
       <InformationDialog
-        hidden={infoDialog}
-        closeDialog={() => toggleInfoDialog(true)}
+        hidden={infoPanel}
+        closePanel={() => toggleInfoPanel(false)}
         onSave={onSaveInformation}
         dispensary={dispensary}
         renderAlert={renderErrorAlert}
       />
 
       <HoursDialog
-        hidden={hoursDialog}
-        closeDialog={() => toggleHoursDialog(true)}
+        hidden={hoursPanel}
+        closePanel={() => toggleHoursPanel(false)}
         onSave={onSaveInformation}
         hours={dispensary.hours || []}
       />

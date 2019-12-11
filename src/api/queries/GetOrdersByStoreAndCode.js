@@ -1,11 +1,11 @@
 import gql from "graphql-tag";
 
 export default gql`
-  subscription ReceiveOrders($storeId: ID!) {
-    onCreateOrder(storeId: $storeId) {
-      storeId
+  query GetOrdersWithCode($storeId: ID!, $code: String!) {
+    getOrderByStoreAndCode(storeId: $storeId, code: $code) {
       id
       createdAt
+      storeId
       expectedCompletionDate
       total
       code
@@ -34,9 +34,9 @@ export default gql`
       products {
         item {
           id
-          quantity
           productType
           isCannabisProduct
+          quantity
           price
           product {
             id

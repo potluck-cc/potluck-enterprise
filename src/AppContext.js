@@ -7,10 +7,4 @@ export default createContext({
   initializeApp: () => {},
   setAuthenticatedUser: () => {},
   demo: false
-  // orderCount: 0,
-  // clearOrderCount: () => {},
-  // orders: [],
-  // clearNewOrders: () => {},
-  // killNewOrdersSubscription: () => {},
-  // storeId: null
 });

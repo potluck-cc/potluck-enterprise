@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 
 export default gql`
   mutation UpdateInventoryItem(
+    $id: ID!
     $thc: String
     $cbd: String
     $options: AWSJSON
@@ -14,7 +15,6 @@ export default gql`
     $price: Float
     $isCannabisProduct: Boolean
     $storeId: ID!
-    $createdAt: AWSTimestamp!
     $updatedAt: AWSTimestamp
     $latitude: Float
     $longitude: Float
@@ -34,7 +34,7 @@ export default gql`
         price: $price
         isCannabisProduct: $isCannabisProduct
         storeId: $storeId
-        createdAt: $createdAt
+        id: $id
         updatedAt: $updatedAt
         latitude: $latitude
         longitude: $longitude

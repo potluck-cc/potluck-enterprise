@@ -18,6 +18,7 @@ export default gql`
     $updatedAt: AWSTimestamp
     $latitude: Float
     $longitude: Float
+    $metadata: String!
   ) {
     createInventoryItem(
       input: {
@@ -37,6 +38,7 @@ export default gql`
         updatedAt: $updatedAt
         latitude: $latitude
         longitude: $longitude
+        metadata: $metadata
       }
     ) {
       id
