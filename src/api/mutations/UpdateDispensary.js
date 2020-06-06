@@ -44,14 +44,17 @@ export default gql`
       name
       street
       city
+      state
       zip
       phone
       latitude
       longitude
+      slug
       link
       logo
       storefrontImage
       pickup
+      delivery
       maxDays
       public
       hours {

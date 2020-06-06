@@ -10,6 +10,8 @@ export default gql`
     $latitude: Float!
     $longitude: Float!
     $companyId: ID!
+    $metadata: String!
+    $slug: String!
   ) {
     createStore(
       input: {
@@ -21,6 +23,8 @@ export default gql`
         latitude: $latitude
         longitude: $longitude
         companyId: $companyId
+        slug: $slug
+        metadata: $metadata
       }
     ) {
       id

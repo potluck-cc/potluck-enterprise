@@ -186,38 +186,38 @@ function EditProductPanel({
 
   useEffect(() => {
     if (isCannabisProduct) {
-      mutateFieldPropertyValue("price", "required", true);
+      // mutateFieldPropertyValue("price", "required", true);
       mutateFieldPropertyValue("options", "required", false);
     } else {
-      mutateFieldPropertyValue("price", "required", false);
+      // mutateFieldPropertyValue("price", "required", false);
       mutateFieldPropertyValue("options", "required", true);
     }
   }, [isCannabisProduct]);
 
-  function initializeFieldState() {
-    if (newProduct) {
-      setIsCannabisProduct(false);
-      mutateFieldPropertyValue("price", "required", false);
-      mutateFieldPropertyValue("options", "required", true);
-    } else if (activeProduct) {
-      setIsCannabisProduct(activeProduct.isCannabisProduct);
-      mutateFieldPropertyValue(
-        "price",
-        "required",
-        activeProduct.isCannabisProduct ? true : false
-      );
-      mutateFieldPropertyValue(
-        "options",
-        "required",
-        activeProduct.isCannabisProduct ? false : true
-      );
-    } else {
-      setIsCannabisProduct(true);
-      updateField("options", null);
-      mutateFieldPropertyValue("price", "required", true);
-      mutateFieldPropertyValue("options", "required", false);
-    }
-  }
+  // function initializeFieldState() {
+  //   if (newProduct) {
+  //     setIsCannabisProduct(false);
+  //     mutateFieldPropertyValue("price", "required", false);
+  //     mutateFieldPropertyValue("options", "required", true);
+  //   } else if (activeProduct) {
+  //     setIsCannabisProduct(activeProduct.isCannabisProduct);
+  //     mutateFieldPropertyValue(
+  //       "price",
+  //       "required",
+  //       activeProduct.isCannabisProduct ? true : false
+  //     );
+  //     mutateFieldPropertyValue(
+  //       "options",
+  //       "required",
+  //       activeProduct.isCannabisProduct ? false : true
+  //     );
+  //   } else {
+  //     setIsCannabisProduct(true);
+  //     updateField("options", null);
+  //     mutateFieldPropertyValue("price", "required", true);
+  //     mutateFieldPropertyValue("options", "required", false);
+  //   }
+  // }
 
   function renderErrorAlert(
     alertMessage = "Something went wrong! Please try again!"
@@ -287,7 +287,8 @@ function EditProductPanel({
         <PrimaryButton
           style={{
             marginLeft: "8px",
-            backgroundColor: "red"
+            backgroundColor: "red",
+            borderColor: "red"
           }}
           onClick={async () => {
             isLoading(true);
@@ -367,7 +368,7 @@ function EditProductPanel({
       operationType: "mutation",
       variables: {
         storeId: activeProduct.storeId,
-        createdAt: activeProduct.createdAt
+        id: activeProduct.id
       }
     });
 
@@ -438,8 +439,12 @@ function EditProductPanel({
             createdAt: createTimestamp(),
             latitude,
             longitude,
-            metadata: `${updatedFormValues.productType.toLowerCase()}-${foundProduct.slug}`
+            metadata: `${updatedFormValues.productType.toLowerCase()}-${
+              updatedFormValues.product
+            }`
           });
+
+          console.log(newInventoryItem);
 
           updateProductState(newInventoryItem, null);
         } else {

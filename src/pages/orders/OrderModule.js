@@ -175,7 +175,8 @@ export default function({ order, updateOrder, updatingOrder }) {
                     }}
                     style={{
                       backgroundColor:
-                        order.status === "accepted" ? "#219647" : null
+                        order.status === "accepted" ? "#219647" : null,
+                        borderColor:  order.status === "accepted" ? "#219647" : null
                     }}
                   >
                     {order.status === "accepted" ? "Complete" : "Accept"}

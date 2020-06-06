@@ -97,11 +97,14 @@
       }
 
       .datepicker-button {
-        height: 40px;
+        height: 30px;
         width: 40px;
         background-color: white;
         border-color: black;
         cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
         i {
           font-size: 1rem;
@@ -648,6 +651,11 @@
 
           &:first-of-type {
             background-color: rgba(red, 0.6);
+            border-color: rgba(red, 1);
+
+            &:hover {
+              background-color: rgba(red, .8);
+            }
           }
         }
       }

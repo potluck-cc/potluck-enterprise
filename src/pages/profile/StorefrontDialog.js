@@ -29,12 +29,12 @@ function StorefrontDialog({
     {
       type: "toggle",
       fieldName: "pickup",
-      value: false,
+      value: dispensary ? dispensary.pickup : false,
       dirty: false,
       touched: false,
       required: false,
       error: false,
-      disabled: true
+      disabled: false
     },
     {
       type: "toggle",
@@ -107,9 +107,21 @@ function StorefrontDialog({
     });
   }, [dispensary]);
 
+  function doesStringHaveSpecialChars(str) {
+    return /[`~!@#$%^&*()|+\-=?;:'" ,<>]/.test(str);
+  }
+
   function handleUpload(imageFiles, imagePreview) {
-    uploadImage(imageFiles[0], imagePreview);
-    updateFieldByName("storefrontImage", generateImageLink(imageFiles[0].name));
+    if (imageFiles.length) {
+      if (doesStringHaveSpecialChars(imageFiles[0].name)) {
+        renderAlert(
+          "Please ensure that your image's file name does not contain any special characters."
+        );
+      } else {
+        uploadImage(imageFiles[0], imagePreview);
+        updateFieldByName("storefrontImage", generateImageLink(imageFiles[0].name));
+      }
+    }
   }
 
   async function handleSubmit() {

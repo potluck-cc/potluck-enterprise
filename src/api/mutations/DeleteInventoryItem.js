@@ -3,9 +3,9 @@ import gql from "graphql-tag";
 export default gql`
   mutation DeleteProductFromInventory(
     $storeId: ID!
-    $createdAt: AWSTimestamp!
+    $id: ID!
   ) {
-    deleteInventoryItem(input: { storeId: $storeId, createdAt: $createdAt }) {
+    deleteInventoryItem(input: { storeId: $storeId, id: $id }) {
       id
     }
   }

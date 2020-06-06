@@ -167,7 +167,7 @@ export default ({
           prefix="$"
           defaultValue={price}
           className="textfield_small"
-          errorMessage={error && errorMessage}
+          // errorMessage={error && errorMessage}
         />
       ) : (
         <Fragment>

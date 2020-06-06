@@ -68,7 +68,7 @@ function InformationDialog({
       value: dispensary.phone ? dispensary.phone : "",
       dirty: false,
       touched: false,
-      required: true,
+      required: false,
       error: false
     },
     {
@@ -115,16 +115,28 @@ function InformationDialog({
     e => renderAlert()
   );
 
+  function doesStringHaveSpecialChars(str) {
+    return /[`~!@#$%^&*()|+\-=?;:'" ,<>]/.test(str);
+  }
+
   function handleUpload(imageFiles, imagePreview) {
-    uploadImage(imageFiles[0], imagePreview);
-    updateFieldByName("logo", generateImageLink(imageFiles[0].name));
+    if (imageFiles.length) {
+      if (doesStringHaveSpecialChars(imageFiles[0].name)) {
+        renderAlert(
+          "Please ensure that your image's file name does not contain any special characters."
+        );
+      } else {
+        uploadImage(imageFiles[0], imagePreview);
+        updateFieldByName("logo", generateImageLink(imageFiles[0].name));
+      }
+    }
   }
 
   function plusify(str) {
     return str.replace(/ /g, "+");
   }
 
-  async function geoLocate({ street, city, state = "NJ" }) {
+  async function geoLocate({ street, city, state }) {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${plusify(
       street
     )},${plusify(city)},${plusify(
@@ -146,7 +158,7 @@ function InformationDialog({
   }
 
   function createValidLink(link) {
-    if (!link.includes("http://")) {
+    if (!link.includes("http://") || !link.includes("https://")) {
       return `http://${link}`;
     } else {
       return link;
@@ -167,8 +179,7 @@ function InformationDialog({
         if (
           street !== dispensary.street ||
           city !== dispensary.city ||
-          zip !== dispensary.zip ||
-          state !== dispensary.state
+          zip !== dispensary.zip
         ) {
           const { lat, lng } =
             (await geoLocate({ street, city, state })) || null;
@@ -190,7 +201,8 @@ function InformationDialog({
       } else {
         return null;
       }
-    } catch {
+    } catch (e) {
+      console.log(e);
       renderAlert();
     }
   }

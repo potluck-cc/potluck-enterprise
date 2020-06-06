@@ -6,6 +6,12 @@ import { Link } from "react-router-dom";
 import StoreImage from "assets/images/store.png";
 import { Panel, PanelType } from "office-ui-fabric-react/lib/Panel";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
+import {
+  Dropdown,
+  DropdownMenuItemType,
+  IDropdownStyles,
+  IDropdownOption
+} from "office-ui-fabric-react/lib/Dropdown";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import {
@@ -22,6 +28,47 @@ import { Fab, Action } from "react-tiny-fab";
 import { Icon } from "office-ui-fabric-react/lib/Icon";
 import { Auth } from "aws-amplify";
 import { Auth as AuthComponent } from "auth";
+
+const options = [
+  {
+    key: "usa",
+    text: "USA",
+    itemType: DropdownMenuItemType.Header
+  },
+  { key: "AK", text: "AK" },
+  { key: "AZ", text: "AZ" },
+  { key: "AR", text: "AR" },
+  { key: "CA", text: "CA" },
+  { key: "CO", text: "CO" },
+  { key: "CT", text: "CT" },
+  { key: "DE", text: "DE" },
+  { key: "DC", text: "DC" },
+  { key: "FL", text: "FL" },
+  { key: "HI", text: "HI" },
+  { key: "IL", text: "IL" },
+  { key: "LA", text: "LA" },
+  { key: "ME", text: "ME" },
+  { key: "MD", text: "MD" },
+  { key: "MA", text: "MA" },
+  { key: "MI", text: "MI" },
+  { key: "MO", text: "MO" },
+  { key: "MT", text: "MT" },
+  { key: "NV", text: "NV" },
+  { key: "NH", text: "NH" },
+  { key: "NJ", text: "NJ" },
+  { key: "NM", text: "NM" },
+  { key: "NY", text: "NY" },
+  { key: "ND", text: "ND" },
+  { key: "OH", text: "OH" },
+  { key: "OK", text: "OK" },
+  { key: "OR", text: "OR" },
+  { key: "PA", text: "PA" },
+  { key: "RI", text: "RI" },
+  { key: "UT", text: "UT" },
+  { key: "VT", text: "VT" },
+  { key: "WA", text: "WA" },
+  { key: "WV", text: "WV" }
+];
 
 const fields = [
   {
@@ -70,6 +117,10 @@ function textFieldStyles() {
     }
   };
 }
+
+const dropdownStyles = {
+  dropdown: { width: 300 }
+};
 
 export default function Home() {
   const [panelOpen, isPanelOpen] = useState(false);
@@ -132,6 +183,8 @@ export default function Home() {
       try {
         const { lat, lng } = (await geoLocate()) || null;
 
+        const slug = removeSpecialChars(name).toLowerCase().replace(/ /g, "_");
+
         const { createStore } =
           (await appsyncFetch({
             client,
@@ -141,11 +194,13 @@ export default function Home() {
               name,
               street,
               city,
-              state: "NJ",
+              state,
               zip,
               latitude: lat,
               longitude: lng,
-              companyId: sub
+              companyId: sub,
+              metadata: `usa-${state.toLowerCase()}-${city.toLowerCase()}-${slug}`,
+              slug
             }
           })) || null;
 
@@ -169,6 +224,10 @@ export default function Home() {
 
   function plusify(str) {
     return str.replace(/ /g, "+");
+  }
+
+  function removeSpecialChars(str) {
+    return str.replace(/[`~!@#$%^&*()|+\-=?;:'",<>]/, '').split('.').join("")
   }
 
   async function geoLocate() {
@@ -329,7 +388,18 @@ export default function Home() {
             }
           />
 
-          <TextField
+          <Dropdown
+            placeholder="Select an option"
+            label="State"
+            options={options}
+            required
+            onChange={(event, option) =>
+              updateFieldByName("state", option.text)
+            }
+            // styles={textFieldStyles}
+          />
+
+          {/* <TextField
             label="State"
             onChange={event => updateFieldByName("state", event.target.value)}
             value={state}
@@ -345,7 +415,7 @@ export default function Home() {
                 ? errorMessage
                 : null
             }
-          />
+          /> */}
 
           <TextField
             label="Zip"

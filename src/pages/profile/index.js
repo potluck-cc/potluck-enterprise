@@ -17,6 +17,8 @@ import "react-s-alert/dist/s-alert-css-effects/jelly.css";
 
 import client from "client";
 import UpdateDispensary from "api/mutations/UpdateDispensary";
+import CreatePublicStoreListing from "api/mutations/CreatePublicStoreListing";
+import DeletePublicStoreListing from "api/mutations/DeletePublicStoreListing";
 
 function Profile() {
   const {
@@ -28,6 +30,39 @@ function Profile() {
   const [storefrontPanel, toggleStorefrontPanel] = useBoolean(false);
   const [dispensary, updateDispensary] = useState(activeStore);
   const [settingsDialog, toggleSettingsDialog] = useBoolean(true);
+
+  async function createPublicListing(dispensaryInfo) {
+    try {
+      const publicListing = await appsyncFetch({
+        client,
+        operationType: "mutation",
+        document: CreatePublicStoreListing,
+        variables: { ...dispensaryInfo, companyId: username }
+      });
+
+      return publicListing;
+    } catch (e) {
+      renderErrorAlert();
+    }
+  }
+
+  async function deletePublicListing() {
+    try {
+      const publicListing = await appsyncFetch({
+        client,
+        operationType: "mutation",
+        document: DeletePublicStoreListing,
+        variables: {
+          id: activeStore.id,
+          companyId: username
+        }
+      });
+
+      return publicListing;
+    } catch (e) {
+      renderErrorAlert();
+    }
+  }
 
   async function onSaveInformation(information) {
     let updatedValues = { ...information };
@@ -48,6 +83,12 @@ function Profile() {
 
       if (updatedDispensary.updateStore) {
         updateDispensary(updatedDispensary.updateStore);
+
+        if (updatedDispensary.updateStore.public) {
+          createPublicListing(updatedDispensary.updateStore);
+        } else {
+          deletePublicListing();
+        }
       }
     } catch (e) {
       renderErrorAlert();
@@ -58,7 +99,7 @@ function Profile() {
     alertMessage = "Something went wrong! Please try again!"
   ) {
     Alert.error(alertMessage, {
-      position: "top-right",
+      position: "top-left",
       effect: "jelly",
       offset: 100,
       timeout: "none"
@@ -94,7 +135,7 @@ function Profile() {
 
         <div className="storefront-card card-dark">
           <Text variant="xxLarge" className="hours-card__title">
-            Dispensary Information
+            Information
           </Text>
 
           <PrimaryButton
@@ -122,6 +163,7 @@ function Profile() {
         closePanel={() => toggleStorefrontPanel(false)}
         onSave={onSaveInformation}
         dispensary={dispensary}
+        renderAlert={renderErrorAlert}
       />
 
       <InformationDialog
